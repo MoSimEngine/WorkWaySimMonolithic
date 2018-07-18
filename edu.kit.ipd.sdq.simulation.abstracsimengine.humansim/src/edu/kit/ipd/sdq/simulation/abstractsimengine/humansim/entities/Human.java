@@ -66,7 +66,46 @@ public class Human extends AbstractSimEntityDelegator {
 		else
 			throw new IllegalStateException("Human don't want to drive! He will walk!!!");
 	}
+	
+	public void arriveAtBusStopHome() {
+		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_HOME)){
+			state = HumanState.AT_BUSSTOP_HOME;
+			setDestination(getWorkBusStop());
+		}
+		else
+			throw new IllegalStateException("Human is lost! At least not at the Bus Stop at home");
+	}
 
+	public void driveToBusStopAtWork() {
+		if(!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME))
+			state = HumanState.DRIVING_TO_WORK;
+		else
+			throw new IllegalStateException("Human cannot drive to work!");
+	}
+	
+	public void arriveAtBusStopWorkByDriving(){
+		if(!willWalk && state.equals(HumanState.DRIVING_TO_WORK))
+			state = HumanState.AT_BUSSTOP_WORK;
+		else 
+			throw new IllegalStateException("Human cannot arrive at work by car!");
+	}
+	
+	public void walkToWorkFromBusStop() {
+		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_WORK))
+			state = HumanState.WALK_TO_WORK_FROM_BUSSTOP;
+		else
+			throw new IllegalStateException("Cannot walk from bus stop to work...");
+	}
+	
+	public void arriveAtWork() {
+		if(!state.equals(HumanState.WALK_TO_WORK_FROM_BUSSTOP)){
+			state = HumanState.AT_WORK;
+			this.setDestination(this.getWorkBusStop());
+		}
+		else 
+			throw new IllegalStateException("Already at work");
+	}
+	
 	public void walkToBusStopAtWork() {
 		if (!willWalk && state.equals(HumanState.AT_WORK))
 			state = HumanState.GO_TO_BUSSTOP_WORK;
@@ -74,25 +113,13 @@ public class Human extends AbstractSimEntityDelegator {
 			throw new IllegalStateException("Human don't want to drive! He will walk!!!");
 	}
 
-	public void arriveAtBusStopHome() {
-		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_HOME))
-			state = HumanState.AT_BUSSTOP_HOME;
-		else
-			throw new IllegalStateException("Human is lost! At least not at the Bus Stop at home");
-	}
-
-	public void arrvieAtBusStopWork() {
-		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_WORK))
+	public void arriveAtBusStopWork() {
+		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_WORK)){
 			state = HumanState.AT_BUSSTOP_WORK;
+			this.setDestination(this.getHomeBusStop());
+		}
 		else
 			throw new IllegalStateException("Human is lost! At least not at the Bus Stop at work");
-	}
-	
-	public void driveToBusStopAtWork() {
-		if(!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME))
-			state = HumanState.DRIVING_TO_WORK;
-		else
-			throw new IllegalStateException("Human cannot drive to work!");
 	}
 	
 	public void driveToBusStopAtHome() {
@@ -101,14 +128,14 @@ public class Human extends AbstractSimEntityDelegator {
 		else
 			throw new IllegalStateException("Human cannot drive home!");
 	}
-
-	public void walkToWorkFromBusStop() {
-		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_WORK))
-			state = HumanState.WALK_TO_WORK_FROM_BUSSTOP;
-		else
-			throw new IllegalStateException("Cannot walk from bus stop to work...");
-	}
 	
+	public void arriveAtBusStopHomeByDriving(){
+		if(!willWalk && state.equals(HumanState.DRIVING_HOME))
+			state = HumanState.AT_BUSSTOP_HOME;
+		else 
+			throw new IllegalStateException("Human cannot arrive at work by car!");
+	}
+
 	public void walkHomeFromBusStop() {
 		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME))
 			state = HumanState.WALK_HOME_FROM_BUSSTOP;
@@ -117,18 +144,40 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 	
 	public void arriveHome() {
-		if(!state.equals(HumanState.AT_HOME))
+		if(!state.equals(HumanState.WALK_HOME_FROM_BUSSTOP)){
 			state = HumanState.AT_HOME;
+			this.setDestination(getHomeBusStop());
+		}
 		else 
 			throw new IllegalStateException("Already at home");
 	}
 	
-	public void arriveAtWork() {
-		if(!state.equals(HumanState.AT_WORK))
-			state = HumanState.AT_WORK;
-		else 
-			throw new IllegalStateException("Already at work");
+	
+	
+	public BusStop getPosition(){
+		return this.position;
 	}
-
+	
+	public void setPosition(BusStop Position){
+		this.destination = Position;
+	}
+	
+	public BusStop getDestination(){
+		return this.position;
+	}
+	
+	public void setDestination(BusStop destination){
+		this.destination = destination;
+	}
+	
+	public BusStop getHomeBusStop(){
+		return this.homeBusStop;
+	}
+	
+	public BusStop getWorkBusStop(){
+		return this.workBusStop;
+	}
+	
+	
 
 }

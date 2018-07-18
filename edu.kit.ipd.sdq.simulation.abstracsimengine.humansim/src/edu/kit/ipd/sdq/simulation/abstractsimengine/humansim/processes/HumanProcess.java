@@ -11,16 +11,19 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 public class HumanProcess extends AbstractSimProcessDelegator {
 
     private Human human;
+    private Bus bus;
 
-    public HumanProcess(Human human) {
+    public HumanProcess(Human human, Bus bus) {
         super(human.getModel(), human.getName());
         this.human = human;
+        this.bus = bus;
     }
 
     @Override
     public void lifeCycle() {
         // goto Wörk ;)
         while (getModel().getSimulationControl().isRunning()) {
+        	
         	walkToBusStopAtHome();
         	waitForBus();
         	driveToBusStopAtWork();
@@ -34,70 +37,98 @@ public class HumanProcess extends AbstractSimProcessDelegator {
         }
     }
 
-
-	private void walkFromBusStopHome() {
+    private void walkToBusStopAtHome() {
+		human.walkToBusStopAtHome();
+		Utils.log(human, human.getName() + " walks to home busstop. I don't like workdays ...");
+		double walkToBusStopHomeDuration = Human.HOME_TO_STATION.toSeconds().value();
+		passivate(walkToBusStopHomeDuration);
+		Utils.log(human, human.getName() + " arrives at home. Afterwork Party!");
+		human.arriveAtBusStopHome();
+	}
+    
+    
+	private void waitForBus() {
+		Utils.log(human, human.getName() + " waits for bus. Why does it take so long?!");
+		// TODO implement waiting until bus arrives at busstop - i hope its parallel xD
+		while(!bus.getPosition().equals(human.getPosition())){
+			
+		}
 		
+		if(human.getDestination().equals(human.getHomeBusStop())){
+			human.driveToBusStopAtHome();
+			Utils.log(human, human.getName() + " sits in bus on the way home. Wrummmm! Wohoo");
+		} else if(human.getDestination().equals(human.getWorkBusStop())) {
+			human.driveToBusStopAtWork();
+			Utils.log(human, human.getName() + " sits in bus on the way to work");
+		}
+		
+	}
+    
+	private void driveToBusStopAtWork() {
+		Utils.log(human, human.getName() + "Is driving home for... working time - by bus");
+		while(!bus.getPosition().equals(human.getHomeBusStop())){
+			
+		}
+		human.arriveAtBusStopWorkByDriving();
+		Utils.log(human, human.getName() + "arrived at BusStop at work - by bus");
+
+	}
+	
+	private void walkFromBusStopToWork() {
+		human.walkToWorkFromBusStop();
+		Utils.log(human, human.getName() + " is walking to work.");
+		double walkingToBusStopHome = Human.HOME_TO_STATION.toSeconds().value();
+		passivate(walkingToBusStopHome);
+		Utils.log(human, human.getName() + "is halfway home!");
+	
+	}
+	
+	private void work() {
+		human.arriveAtWork();
+		Utils.log(human, human.getName() + " Works and Works");
+		double working = Human.WORKTIME.toSeconds().value();
+		passivate(working);
+		Utils.log(human, "Finally its over..." + human.getName() + " stops working.");
+	}
+	
+	
+	private void walkToBusStopFromWork() {
+		human.walkToBusStopAtWork();
+		Utils.log(human, human.getName() + " is walking from work to busstop");
+		double walkingToBusStopWork = Human.WORK_TO_STATION.toSeconds().value();
+		passivate(walkingToBusStopWork);
+		human.arriveAtBusStopWork();
+		Utils.log(human, human.getName() + "is at bus stop and halfway home!");
+	}
+
+	
+
+	private void driveToBusStopAtHome() {
+		Utils.log(human, human.getName() + "Is driving home for... free time - by bus");
+		while(!bus.getPosition().equals(human.getHomeBusStop())){
+			
+		}
+		human.arriveAtBusStopHomeByDriving();
+		Utils.log(human, human.getName() + "arrived at BusStop at home - by bus");
+	}
+
+	
+	private void walkFromBusStopHome() {
+		Utils.log(human, human.getName() + " walks home. Only a few steps now!");
+		double walkHomeDuration = Human.HOME_TO_STATION.toSeconds().value();
+		passivate(walkHomeDuration);
+		human.arriveHome();
+		Utils.log(human, human.getName() + " arrives at home. Afterwork Party!");
 		
 	}
 
 	private void live() {
+		
 		Utils.log(human, human.getName() + " lives his life. Black Jack and Hookers baby.");
 		double livingHisLife = Human.FREETIME.toSeconds().value();
 		passivate(livingHisLife);
+		human.walkToBusStopAtHome();
 		Utils.log(human, "Oh boy, time flies by... " + human.getName() + " stops living his life.");
+		
 	}
-
-	private void loadPassengers() {
-        BusStop position = bus.getPosition();
-        int waitingPassengers = position.getWaitingPassengers();
-
-        int servedPassengers = Math.min(waitingPassengers, bus.getTotalSeats());
-
-        Utils.log(bus, "Loading " + servedPassengers + " passengers at bus stop " + position + "...");
-        bus.load(servedPassengers);
-
-        int remainingPassengers = waitingPassengers - servedPassengers;
-        position.setWaitingPassengers(remainingPassengers);
-
-        // wait until all passengers have entered the bus
-        double loadingTime = servedPassengers * Bus.LOADING_TIME_PER_PASSENGER.toSeconds().value();
-        passivate(loadingTime);
-
-        Utils.log(bus, "Loading finished. Took " + loadingTime + " seconds.");
-
-        if (remainingPassengers > 0) {
-            Utils.log(bus, "Bus is full. Remaining passengers at bus station: " + position.getWaitingPassengers());
-        }
-    }
-
-    private void travelToNextStation() {
-        RouteSegment segment = bus.travel();
-
-        Utils.log(bus, "Travelling to station " + segment.getTo());
-
-        double drivingTime = Duration.hours(segment.getDistance() / (double) segment.getAverageSpeed()).toSeconds()
-                .value();
-
-        // wait for the bus to arrive at the next station
-        passivate(drivingTime);
-
-        // arrive at the target station
-        BusStop currentStation = bus.arrive();
-        Utils.log(bus, "Arrived at station " + currentStation + ". Travelling took " + drivingTime / 60.0 + " minutes.");
-    }
-
-    private void unloadPassengers() {
-        BusStop position = bus.getPosition();
-        int occupiedSeats = bus.getOccupiedSeats();
-
-        Utils.log(bus, "Unloading " + occupiedSeats + " passengers at station " + position + "...");
-        bus.unload();
-
-        // wait for the passengers to leave the bus
-        double unloadingTime = occupiedSeats * Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value();
-        passivate(unloadingTime);
-
-        Utils.log(bus, "Unloading finished. Took " + unloadingTime + " seconds.");
-    }
-
 }
