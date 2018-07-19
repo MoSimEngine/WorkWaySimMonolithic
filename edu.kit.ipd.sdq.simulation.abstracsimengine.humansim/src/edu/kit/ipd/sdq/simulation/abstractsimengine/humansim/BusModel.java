@@ -23,7 +23,6 @@ public class BusModel extends AbstractSimulationModel {
         super(config, factory);
     }
 
-    @Override
     public void init() {
         // define bus stops
         stop1 = new BusStop(this, "Stop1");
@@ -60,7 +59,6 @@ public class BusModel extends AbstractSimulationModel {
         }
     }
 
-    @Override
     public void finalise() {
         System.out.println("-----------------------------");
         System.out.println("Waiting passengers at " + stop1.getName() + ":" + stop1.getWaitingPassengers());

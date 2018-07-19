@@ -10,7 +10,7 @@ public class Route {
     private Map<BusStop, RouteSegment> segmentMap;
 
     public Route() {
-        this.segmentMap = new HashMap<>();
+        this.segmentMap = new HashMap<BusStop, RouteSegment>();
     }
 
     public void addSegment(BusStop from, BusStop to, int distance, int averageSpeed) {

@@ -24,7 +24,7 @@ public class BusSimulationExample implements IApplication {
         this.simControl.setMaxSimTime((long) MAX_SIMULATION_TIME.toSeconds().value());
     }
 
-    @Override
+
     public Object start(IApplicationContext context) throws Exception {
         // configure Logger
         BasicConfigurator.configure();
@@ -36,7 +36,7 @@ public class BusSimulationExample implements IApplication {
         return EXIT_OK;
     }
 
-    @Override
+
     public void stop() {
         // nothing to do
     }

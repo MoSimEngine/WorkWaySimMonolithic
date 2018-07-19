@@ -10,7 +10,7 @@
             thread="main"
             visible="true">
          <run
-               class="edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.BusSimulationExample">
+               class="edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.HumanSimulationExample">
          </run>
       </application>
    </extension>
