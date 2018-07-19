@@ -21,7 +21,8 @@ public class Human extends AbstractSimEntityDelegator {
 		WALK_TO_WORK_FROM_BUSSTOP,
 //		
 //		
-//		WALKING, 
+		WALKING_DIRECTLY_TO_WORK,
+		WALKING_DIRECTLY_HOME
 //		DRIVING
 	}
 
@@ -41,9 +42,15 @@ public class Human extends AbstractSimEntityDelegator {
 
 	public static final Duration WORK_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
 	
+	public static final Duration BUS_DRIVING_TIME = Duration.minutes(new Random().nextInt(60) + 1);
+	
+	public static final Duration WAITING_TIME_BUSSTOP = Duration.minutes(new Random().nextInt(60) + 1);
+	
 	public static final Duration WORKTIME = Duration.hours(8);
 	
-	public static final Duration FREETIME = Duration.hours(24 - WORKTIME.value() - HOME_TO_STATION.value() - WORK_TO_STATION.value());
+	public static final Duration FREETIME = Duration.hours(24 - WORKTIME.value() - HOME_TO_STATION.value() - WORK_TO_STATION.value() - (2*BUS_DRIVING_TIME.value()) - (2*WAITING_TIME_BUSSTOP.value()));
+	
+
 
 	public Human(BusStop home, BusStop work, ISimulationModel model, String name) {
 		super(model, name);
@@ -60,6 +67,8 @@ public class Human extends AbstractSimEntityDelegator {
 
 	}
 
+	//BusDriving state changes
+	
 	public void walkToBusStopAtHome() {
 		if (!willWalk && state.equals(HumanState.AT_HOME))
 			state = HumanState.GO_TO_BUSSTOP_HOME;
@@ -154,6 +163,25 @@ public class Human extends AbstractSimEntityDelegator {
 	
 	
 	
+	//Walking state changes
+	
+	
+	public void walkToWork(){
+		if(!state.equals(HumanState.AT_HOME))
+			state = HumanState.AT_WORK;
+		else 
+			throw new IllegalStateException("Human is lost, but not at home");
+	}
+	
+	public void walkHome(){
+		if(!state.equals(HumanState.AT_WORK))
+			state = HumanState.AT_HOME;
+		else 
+			throw new IllegalStateException("Human is lost, but not at work");
+	}
+	
+	
+	
 	public BusStop getPosition(){
 		return this.position;
 	}
@@ -178,6 +206,9 @@ public class Human extends AbstractSimEntityDelegator {
 		return this.workBusStop;
 	}
 	
+	public boolean getWillWalk(){
+		return this.willWalk;
+	}
 	
 
 }
