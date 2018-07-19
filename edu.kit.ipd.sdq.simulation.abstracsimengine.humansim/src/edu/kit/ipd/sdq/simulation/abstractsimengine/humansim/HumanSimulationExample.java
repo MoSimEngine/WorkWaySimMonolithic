@@ -24,7 +24,6 @@ public class HumanSimulationExample implements IApplication {
 		this.simControl.setMaxSimTime((long) MAX_SIMULATION_TIME.toSeconds().value());
 		
 	}
-	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		
 		BasicConfigurator.configure();
@@ -36,7 +35,7 @@ public class HumanSimulationExample implements IApplication {
         return EXIT_OK;
 	}
 
-	@Override
+
 	public void stop() {
 		// nothing to do;
 	}

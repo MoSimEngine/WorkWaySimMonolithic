@@ -161,12 +161,17 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		human.walkToWork();
 		Utils.log(human, human.getName() + " walking to work. Wow, its a long way.");
 		
+		double walkingTime = Human.WALKING_DURATION_WITHOUT_BUS.value();
+		passivate(walkingTime);
+		Utils.log(human, human.getName() + " walked to work. That was a long walk!");
 	}
 
 	private void walkHomeDirectly() {
 		human.walkHome();
 		Utils.log(human, human.getName() + " walking home. Dubidu he is walking");
-		
+		double walkingTime = Human.WALKING_DURATION_WITHOUT_BUS.value();
+		passivate(walkingTime);
+		Utils.log(human, human.getName() + " walked home. That was a long walk!");
 	}
 	
 	//General living and Working
