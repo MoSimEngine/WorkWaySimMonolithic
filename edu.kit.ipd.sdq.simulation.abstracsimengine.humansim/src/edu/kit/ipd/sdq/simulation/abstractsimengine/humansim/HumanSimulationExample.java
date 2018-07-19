@@ -16,6 +16,7 @@ public class HumanSimulationExample implements IApplication {
 	
 	 private static final Duration MAX_SIMULATION_TIME = Duration.hours(10);
 	
+	
 	public HumanSimulationExample() {
 		this.config = new HumanSimConfig();
 		this.model = HumanModel.create(config);
@@ -23,7 +24,7 @@ public class HumanSimulationExample implements IApplication {
 		this.simControl.setMaxSimTime((long) MAX_SIMULATION_TIME.toSeconds().value());
 		
 	}
-	
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		
 		BasicConfigurator.configure();
@@ -35,6 +36,7 @@ public class HumanSimulationExample implements IApplication {
         return EXIT_OK;
 	}
 
+	@Override
 	public void stop() {
 		// nothing to do;
 	}

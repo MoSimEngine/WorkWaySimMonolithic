@@ -26,7 +26,7 @@ public class HumanModel extends AbstractSimulationModel{
 		super(config, factory);
 		
 	}
-
+	@Override
 	public void init() {
 		stop1 = new BusStop(this, "Stop1");
         stop2 = new BusStop(this, "Stop2");
@@ -61,7 +61,7 @@ public class HumanModel extends AbstractSimulationModel{
             //new LoadPassengersEvent(this, "Load Passengers").schedule(bus, 0);
         }
 	}
-
+	@Override
 	public void finalise() {
 		// TODO Auto-generated method stub
 		 System.out.println("-----------------------------");
