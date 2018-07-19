@@ -22,6 +22,8 @@ public class HumanModel extends AbstractSimulationModel{
 	 
 	 private Human human; 
 	 
+	 private final int iterations = 100;
+	 
 	public HumanModel(ISimulationConfig config, ISimEngineFactory factory) {
 		super(config, factory);
 		
@@ -45,7 +47,7 @@ public class HumanModel extends AbstractSimulationModel{
 
         // define buses
         //Bus bus = new Bus(40, stop1, lineOne, this, "Bus 1");
-        Human human = new Human(stop1, stop3, this, "Bob");
+        
         
         this.human = human;
         if (PROCESS_ORIENTED) {
@@ -53,8 +55,9 @@ public class HumanModel extends AbstractSimulationModel{
             //new BusProcess(bus).scheduleAt(0);
         	
         	// schedule a process for each human
-        	new HumanProcess(human).scheduleAt(0);
-
+        	for(int i = 0; i < iterations; i++){
+        		new HumanProcess(new Human(stop1, stop3, this, "Bob" + i)).scheduleAt(0);
+        	}
             
         } else { // event-oriented
             // schedule intitial event for the bus

@@ -50,7 +50,7 @@ public class BusModel extends AbstractSimulationModel {
             new PassengerArrivalProcess(stop3, Duration.minutes(5)).scheduleAt(0);
         } else { // event-oriented
             // schedule intitial event for the bus
-            new LoadPassengersEvent(this, "Load Passengers").schedule(bus, 0);
+            //new LoadPassengersEvent(this, "Load Passengers").schedule(bus, 0);
 
             // schedule events for the arrival at each bus stop
             new PassengerArrivalEvent(Duration.minutes(2), this, "Passenger Arrival 1").schedule(stop1, 0);
