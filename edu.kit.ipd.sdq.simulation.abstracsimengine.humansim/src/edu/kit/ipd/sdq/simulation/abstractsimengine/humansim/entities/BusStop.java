@@ -1,14 +1,23 @@
 package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 
 public class BusStop extends AbstractSimEntityDelegator {
 
-    private int waitingPassengers;
-
+    private volatile int waitingPassengers;
+    
+    private ConcurrentLinkedQueue<Human> passengers;
+    
+    
     public BusStop(ISimulationModel model, String name) {
         super(model, name);
+        
+       passengers = new ConcurrentLinkedQueue<Human>();
     }
 
     public int getWaitingPassengers() {
@@ -18,7 +27,20 @@ public class BusStop extends AbstractSimEntityDelegator {
     public void setWaitingPassengers(int waitingPassengers) {
         this.waitingPassengers = waitingPassengers;
     }
-
+    
+    public synchronized void setPassenger(Human human){
+    	passengers.add(human);
+    }
+    
+    public synchronized Human getPassenger(){
+    	return passengers.remove();
+    }
+    
+    public int getPassengersInQueue(){
+    	return passengers.size();
+    }
+    
+    
     @Override
     public String toString() {
         return getName();

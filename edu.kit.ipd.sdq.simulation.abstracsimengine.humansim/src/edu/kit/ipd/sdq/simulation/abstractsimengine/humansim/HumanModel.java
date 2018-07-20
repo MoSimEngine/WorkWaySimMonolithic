@@ -1,5 +1,7 @@
 package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim;
 
+import java.util.Random;
+
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimulationModel;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimEngineFactory;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationConfig;
@@ -9,6 +11,7 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.LoadPassengersEvent;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.PassengerArrivalEvent;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.processes.BusProcess;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.processes.HumanProcess;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.processes.PassengerArrivalProcess;
 
@@ -22,7 +25,7 @@ public class HumanModel extends AbstractSimulationModel{
 	 
 	 private Human human; 
 	 
-	 private final int iterations = 100;
+	 private final int numHumans = 2;
 	 
 	public HumanModel(ISimulationConfig config, ISimEngineFactory factory) {
 		super(config, factory);
@@ -30,15 +33,15 @@ public class HumanModel extends AbstractSimulationModel{
 	}
 	
 	public void init() {
-		stop1 = new BusStop(this, "Stop1");
-        stop2 = new BusStop(this, "Stop2");
-        stop3 = new BusStop(this, "Stop3");
+		
 		
         // define bus stops
         stop1 = new BusStop(this, "Stop1");
         stop2 = new BusStop(this, "Stop2");
         stop3 = new BusStop(this, "Stop3");
 
+        BusStop[] stops = {stop1, stop2, stop3};
+        
         // define route
         Route lineOne = new Route();
         lineOne.addSegment(stop1, stop2, 10, 35);
@@ -46,17 +49,26 @@ public class HumanModel extends AbstractSimulationModel{
         lineOne.addSegment(stop3, stop1, 30, 50);
 
         // define buses
-        //Bus bus = new Bus(40, stop1, lineOne, this, "Bus 1");
+        Bus bus = new Bus(40, stop1, lineOne, this, "Bus 1");
         
         
-        this.human = human;
+        
         if (PROCESS_ORIENTED) {
             // schedule a process for each bus
-            //new BusProcess(bus).scheduleAt(0);
+            new BusProcess(bus).scheduleAt(0);
         	
         	// schedule a process for each human
-        	for(int i = 0; i < iterations; i++){
-        		new HumanProcess(new Human(stop1, stop3, this, "Bob" + i)).scheduleAt(0);
+        	for(int i = 0; i < numHumans; i++){
+        		//new HumanProcess(new Human(stop1, stop3, this, "Bob" + i), bus).scheduleAt(0);
+        		int homeBS = 0;
+        		int workBS = 0;
+        		
+        		while(homeBS == workBS){
+        			homeBS = new Random().nextInt(3);
+        			workBS = new Random().nextInt(3);
+        		}
+        		
+        		new HumanProcess(new Human(stops[homeBS], stops[workBS], this, "Bob" + i), bus).scheduleAt(0);
         	}
             
         } else { // event-oriented

@@ -38,14 +38,16 @@ public class Human extends AbstractSimEntityDelegator {
 	private BusStop position;
 
 	private BusStop destination;
-
-	public final Duration HOME_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
-
-	public  final Duration WORK_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
 	
-	public  final Duration BUS_DRIVING_TIME = Duration.minutes(new Random().nextInt(60) + 1);
+	private boolean collected;
+
+	public static final Duration HOME_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
+
+	public  static final Duration WORK_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
 	
-	public  final Duration WAITING_TIME_BUSSTOP = Duration.minutes(new Random().nextInt(60) + 1);
+	public  static final Duration BUS_DRIVING_TIME = Duration.minutes(new Random().nextInt(60) + 1);
+	
+	public  static final Duration WAITING_TIME_BUSSTOP = Duration.minutes(new Random().nextInt(60) + 1);
 	
 	
 	public  final Duration WALKING_DURATION_WITHOUT_BUS =  Duration.minutes(2*(HOME_TO_STATION.value() + WORK_TO_STATION.value() + (2*BUS_DRIVING_TIME.value()) + (2*WAITING_TIME_BUSSTOP.value())));
@@ -65,7 +67,6 @@ public class Human extends AbstractSimEntityDelegator {
 		position = home;
 		state = HumanState.AT_HOME;
 		willWalk =  new Random().nextBoolean();
-				
 		destination = workBusStop;
 		
 		if(!willWalk){
@@ -75,10 +76,11 @@ public class Human extends AbstractSimEntityDelegator {
 			FREETIME = Duration.hours(24 - WORKTIME.toHours().value() - 2*WALKING_DURATION_WITHOUT_BUS.toHours().value());
 			if(FREETIME.value() < 0.00){
 				FREETIME = Duration.hours(0);
-				
-				Utils.log(this, this.getName() + " wow... walking does not leave much time");
+				Utils.log(this, this.getName() + " wow... walking does not leave much free time");
 			}
 		}
+		System.out.println("Person: " + this.getName() + "HomeBS: " + home.getName() + " WorkBS:" + work.getName());
+	
 	}
 
 	public void travel() {
@@ -97,14 +99,18 @@ public class Human extends AbstractSimEntityDelegator {
 	public void arriveAtBusStopHome() {
 		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_HOME)){
 			state = HumanState.AT_BUSSTOP_HOME;
+			position = homeBusStop;
+			position.setPassenger(this);
 		}
 		else
 			throw new IllegalStateException("Human is lost! At least not at the Bus Stop at home");
 	}
 
 	public void driveToBusStopAtWork() {
-		if(!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME))
+		if(!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME)){
 			state = HumanState.DRIVING_TO_WORK;
+			position = null;
+		}
 		else
 			throw new IllegalStateException("Human cannot drive to work!");
 	}
@@ -119,8 +125,10 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 	
 	public void walkToWorkFromBusStop() {
-		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_WORK))
+		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_WORK)){
 			state = HumanState.WALK_TO_WORK_FROM_BUSSTOP;
+			position = null;
+		}
 		else
 			throw new IllegalStateException("Cannot walk from bus stop to work...");
 	}
@@ -142,15 +150,20 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 
 	public void arriveAtBusStopWork() {
-		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_WORK))
+		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_WORK)){
 			state = HumanState.AT_BUSSTOP_WORK;
+			position = workBusStop;
+			position.setPassenger(this);
+		}
 		else
 			throw new IllegalStateException("Human is lost! At least not at the Bus Stop at work");
 	}
 	
 	public void driveToBusStopAtHome() {
-		if(!willWalk && state.equals(HumanState.AT_BUSSTOP_WORK))
+		if(!willWalk && state.equals(HumanState.AT_BUSSTOP_WORK)){
 			state = HumanState.DRIVING_HOME;
+			position = null;
+		}
 		else
 			throw new IllegalStateException("Human cannot drive home!");
 	}
@@ -158,15 +171,17 @@ public class Human extends AbstractSimEntityDelegator {
 	public void arriveAtBusStopHomeByDriving(){
 		if(!willWalk && state.equals(HumanState.DRIVING_HOME)){
 			state = HumanState.AT_BUSSTOP_HOME;
-			position = this.homeBusStop;
+			position = homeBusStop;
 		}
 		else 
 			throw new IllegalStateException("Human cannot arrive at work by car!");
 	}
 
 	public void walkHomeFromBusStop() {
-		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME))
+		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME)){
 			state = HumanState.WALK_HOME_FROM_BUSSTOP;
+			position = null;
+		}
 		else
 			throw new IllegalStateException("Cannot walk home from bus stop...");
 	}
@@ -174,7 +189,7 @@ public class Human extends AbstractSimEntityDelegator {
 	public void arriveHome() {
 		if(!willWalk && state.equals(HumanState.WALK_HOME_FROM_BUSSTOP)){
 			state = HumanState.AT_HOME;
-			this.setDestination(getWorkBusStop());
+			this.setDestination(workBusStop);
 		}
 		else 
 			throw new IllegalStateException("Already at home");
@@ -227,6 +242,14 @@ public class Human extends AbstractSimEntityDelegator {
 	
 	public boolean getWillWalk(){
 		return this.willWalk;
+	}
+
+	public boolean isCollected() {
+		return collected;
+	}
+
+	public void setCollected(boolean collected) {
+		this.collected = collected;
 	}
 	
 

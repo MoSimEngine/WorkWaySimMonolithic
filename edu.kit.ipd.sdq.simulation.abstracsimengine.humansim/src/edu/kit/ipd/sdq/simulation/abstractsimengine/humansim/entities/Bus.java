@@ -5,6 +5,7 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Duration;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Route;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Route.RouteSegment;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
 /**
  * This entity represents a bus which transports passengers between different bus stations.
@@ -30,9 +31,9 @@ public class Bus extends AbstractSimEntityDelegator {
 
     private BusStop destination;
 
-    public static final Duration UNLOADING_TIME_PER_PASSENGER = Duration.seconds(4);
+    public static final Duration UNLOADING_TIME_PER_PASSENGER = Duration.seconds(5);
 
-    public static final Duration LOADING_TIME_PER_PASSENGER = Duration.seconds(3);
+    public static final Duration LOADING_TIME_PER_PASSENGER = Duration.seconds(6);
 
     public Bus(int totalSeats, BusStop initialPosition, Route route, ISimulationModel model, String name) {
         super(model, name);
@@ -75,6 +76,8 @@ public class Bus extends AbstractSimEntityDelegator {
 
     public RouteSegment travel() {
         RouteSegment s = route.getRouteSegment(this.position);
+        
+
 
         this.state = BusState.TRAVELLING;
         this.destination = route.getRouteSegment(this.position).getTo();
