@@ -58,10 +58,12 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 	// Lifecycle with bus
     private void walkToBusStopAtHome() {
 		human.walkToBusStopAtHome();
+		
 		Utils.log(human, human.getName() + " walks to home busstop:" + human.getHomeBusStop().getName() + ".  I don't like workdays ...");
 		double walkToBusStopHomeDuration = human.HOME_TO_STATION.toSeconds().value();
 		passivate(walkToBusStopHomeDuration);
 		human.arriveAtBusStopHome();
+		human.getPosition().setPassenger(human);
 	}
     
     
@@ -70,8 +72,8 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		Utils.log(human, human.getName() + " waits at busstop:" + human.getHomeBusStop().getName());
 
 		while(!human.isCollected()){
-
 			//Utils.log(human, human.getName() + " still driving in bus to " + human.getHomeBusStop());
+			human.addTimeToTimeDriven(1);
 			passivate(1);
 		}
 
@@ -86,6 +88,7 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 			while(human.isCollected()){
 
 				//Utils.log(human, human.getName() + " still driving in bus to " + human.getHomeBusStop());
+				human.addTimeToTimeDriven(1);
 				passivate(1);
 			}
 
@@ -98,9 +101,9 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 	private void walkFromBusStopToWork() {
 		human.walkToWorkFromBusStop();
 		Utils.log(human, human.getName() + " is walking to work.");
-		double walkingToBusStopHome = human.HOME_TO_STATION.toSeconds().value();
-		passivate(walkingToBusStopHome);
-		human.arriveAtWork();
+		double walkingToWork = human.WORK_TO_STATION.toSeconds().value();
+		passivate(walkingToWork);
+		human.arriveAtWorkBus();
 		Utils.log(human, human.getName() + " starts to work.");
 	}
 	
@@ -113,6 +116,7 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		double walkingToBusStopWork = human.WORK_TO_STATION.toSeconds().value();
 		passivate(walkingToBusStopWork);
 		human.arriveAtBusStopWork();
+		human.getPosition().setPassenger(human);
 		Utils.log(human, human.getName() + "is at bus stop and halfway home!");
 	}
 
@@ -125,6 +129,7 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 			while(human.isCollected()){
 
 				//Utils.log(human, human.getName() + " still driving in bus to " + human.getHomeBusStop());
+				human.addTimeToTimeDriven(1);
 				passivate(1);
 			}
 
@@ -138,7 +143,7 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		Utils.log(human, human.getName() + " walks home. Only a few steps now!");
 		double walkHomeDuration = human.HOME_TO_STATION.toSeconds().value();
 		passivate(walkHomeDuration);
-		human.arriveHome();
+		human.arriveHomeBus();
 		Utils.log(human, human.getName() + " arrives at home. Afterwork Party!");
 	}
 	
@@ -146,33 +151,37 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 	//Lifecycle with walking
 	
 	private void walkToWorkDirectly() {
-		human.walkToWork();
+		human.walkToWorkDirectly();
 		Utils.log(human, human.getName() + " walking to work. Wow, its a long way.");
 		
 		double walkingTime = human.WALKING_DURATION_WITHOUT_BUS.toSeconds().value();
 		passivate(walkingTime);
+		human.arriveAtWorkDirectlyWalking();
 		Utils.log(human, human.getName() + " walked to work. That was a long walk!");
+		
 	}
 
 	private void walkHomeDirectly() {
-		human.walkHome();
+		human.walkHomeDirectly();
 		Utils.log(human, human.getName() + " walking home. Dubidu he is walking");
-		double walkingTime = human.WALKING_DURATION_WITHOUT_BUS.value();
+		double walkingTime = human.WALKING_DURATION_WITHOUT_BUS.toSeconds().value();
 		passivate(walkingTime);
+		human.arriveAtHomeDirectlyWalking();
 		Utils.log(human, human.getName() + " walked home. That was a long walk!");
+		
 	}
 	
 	//General living and Working
 	private void live() {
 		Utils.log(human, human.getName() + " lives his life. Black Jack and Hookers baby.");
+		human.calculateFreeTime();
 		double livingHisLife = human.FREETIME.toSeconds().value();
-		System.out.println(human.FREETIME.toHours().value());
 		passivate(livingHisLife);
 		Utils.log(human, "Oh boy, time flies by... " + human.getName() + " stops living his life.");
 	}
 	
 	private void work() {
-		Utils.log(human, "Finally its over..." + human.getName() + " works and works.");
+		Utils.log(human, human.getName() + " works and works.");
 		double working = human.WORKTIME.toSeconds().value();
 		passivate(working);
 		Utils.log(human, "Finally its over..." + human.getName() + " stops working.");

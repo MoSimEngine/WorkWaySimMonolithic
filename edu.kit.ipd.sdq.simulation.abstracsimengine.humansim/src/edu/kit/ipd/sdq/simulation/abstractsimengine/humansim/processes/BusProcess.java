@@ -14,12 +14,10 @@ public class BusProcess extends AbstractSimProcessDelegator {
 
     private Bus bus;
 
-    private ConcurrentLinkedQueue<Human> transportedHumans;
-    
     public BusProcess(Bus bus) {
         super(bus.getModel(), bus.getName());
         this.bus = bus;
-        transportedHumans = new ConcurrentLinkedQueue<Human>();
+        
     }
 
     @Override
@@ -49,7 +47,7 @@ public class BusProcess extends AbstractSimProcessDelegator {
         double totalLoadingTime = 0;
         for (int i = 0; i < servedPassengers; i++){
         	Human h = position.getPassenger();
-        	transportedHumans.add(h);
+        	bus.transportHuman(h);
         	
         	
         	double loadingTime = Bus.LOADING_TIME_PER_PASSENGER.toSeconds().value();
@@ -95,15 +93,15 @@ public class BusProcess extends AbstractSimProcessDelegator {
         bus.unload();
         double totalUnloadingTime = 0.0;
         double unloadingTime = Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value();
-        for(int i = 0; i < transportedHumans.size(); i++){
-        	Human h = transportedHumans.remove();
+        for(int i = 0; i < bus.getTransportedHumans().size(); i++){
+        	Human h = bus.unloadHuman();
         	if(h.getDestination().equals(bus.getPosition())){
         		Utils.log(bus, "Unloading " + h.getName() + " at positio + " + position.getName());
         		totalUnloadingTime += unloadingTime;
         		passivate(unloadingTime);
         		h.setCollected(false);
         	} else {
-        		transportedHumans.add(h);
+        		bus.transportHuman(h);
         	}
         }
 

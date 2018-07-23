@@ -25,8 +25,10 @@ public class LoadFinishedEvent extends AbstractSimEventDelegator<Bus> {
             Utils.log(bus, "Bus is full. Remaining passengers at bus station: "
                     + bus.getPosition().getWaitingPassengers());
         }
-
-        new TravelEvent(this.getModel(), "Travel").schedule(bus, 0);
+      
+       
+        TravelEvent e = new TravelEvent(this.getModel(), "Travel");
+        e.schedule(bus, 0);
     }
 
 }

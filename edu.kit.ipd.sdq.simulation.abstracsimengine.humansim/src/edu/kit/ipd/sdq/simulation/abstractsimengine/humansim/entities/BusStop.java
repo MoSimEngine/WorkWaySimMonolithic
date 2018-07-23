@@ -37,7 +37,12 @@ public class BusStop extends AbstractSimEntityDelegator {
     }
     
     public int getPassengersInQueue(){
-    	return passengers.size();
+    	if(passengers.isEmpty()){
+    		return 0;
+    	} else {
+    		return passengers.size();
+    	}
+    	
     }
     
     

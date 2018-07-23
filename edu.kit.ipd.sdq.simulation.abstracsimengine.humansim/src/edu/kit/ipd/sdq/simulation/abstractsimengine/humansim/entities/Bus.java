@@ -1,5 +1,7 @@
 package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Duration;
@@ -34,7 +36,8 @@ public class Bus extends AbstractSimEntityDelegator {
     public static final Duration UNLOADING_TIME_PER_PASSENGER = Duration.seconds(5);
 
     public static final Duration LOADING_TIME_PER_PASSENGER = Duration.seconds(6);
-
+    private ConcurrentLinkedQueue<Human> transportedHumans;
+    
     public Bus(int totalSeats, BusStop initialPosition, Route route, ISimulationModel model, String name) {
         super(model, name);
         this.totalSeats = totalSeats;
@@ -43,6 +46,7 @@ public class Bus extends AbstractSimEntityDelegator {
         // start in unloading state
         this.position = initialPosition;
         this.state = BusState.UNLOADING_PASSENGERS;
+        transportedHumans = new ConcurrentLinkedQueue<Human>();
     }
 
     public BusStop arrive() {
@@ -101,5 +105,31 @@ public class Bus extends AbstractSimEntityDelegator {
     public int getOccupiedSeats() {
         return occupiedSeats;
     }
+
+	public void transportHuman(Human human){
+		if(!transportedHumans.contains(human))
+			transportedHumans.add(human);
+		else 
+			throw new IllegalStateException("Human is already in Bus");
+	}
+	
+	public ConcurrentLinkedQueue<Human> getTransportedHumans(){
+		return transportedHumans;
+	}
+	
+	public int getNumTransportedHumans(){
+		if(transportedHumans.isEmpty()){
+			return 0;
+		} else {
+			return transportedHumans.size();
+		}
+		
+	}
+	
+	
+	
+	public Human unloadHuman(){
+		return transportedHumans.poll();
+	}
 
 }

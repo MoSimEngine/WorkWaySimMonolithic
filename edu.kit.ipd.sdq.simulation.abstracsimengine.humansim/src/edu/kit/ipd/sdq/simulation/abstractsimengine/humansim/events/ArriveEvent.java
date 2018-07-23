@@ -2,8 +2,10 @@ package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Duration;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Bus;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
 public class ArriveEvent extends AbstractSimEventDelegator<Bus> {
@@ -21,7 +23,9 @@ public class ArriveEvent extends AbstractSimEventDelegator<Bus> {
         BusStop currentStation = bus.arrive();
         Utils.log(bus, "Arrived at station " + currentStation + ". Travelling took " + travelingTime / 60.0
                 + " minutes.");
-
+        for (Human hu : bus.getTransportedHumans()) {
+			hu.addTimeToTimeDriven(travelingTime);
+		}
         // schedule unloading event
         UnloadPassengersEvent e = new UnloadPassengersEvent(this.getModel(), "Unload Passengers");
         e.schedule(bus, 0);
