@@ -17,7 +17,7 @@ public class HumanEndsWorkingEvent extends AbstractSimEventDelegator<Human>{
 		
 		Utils.log(human, "Finally its over..." + human.getName() + " stops working.");
 		
-		if(human.getWillWalk()){
+		if(human.willWalk()){
 			HumanWalksDirectlyHomeEvent e = new HumanWalksDirectlyHomeEvent(this.getModel(), "human walks home directly");
 			e.schedule(human, 0);
 		} else {

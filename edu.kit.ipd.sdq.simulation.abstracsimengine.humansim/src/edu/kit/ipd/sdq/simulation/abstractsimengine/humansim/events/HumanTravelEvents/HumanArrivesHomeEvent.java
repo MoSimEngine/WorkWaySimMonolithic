@@ -15,7 +15,7 @@ public class HumanArrivesHomeEvent extends AbstractSimEventDelegator<Human>{
 	@Override
 	public void eventRoutine(Human human) {
 		// TODO Auto-generated method stub
-		if(human.getWillWalk()){
+		if(human.willWalk()){
 			human.arriveAtHomeDirectlyWalking();
 		} else {
 			human.arriveHomeBus();

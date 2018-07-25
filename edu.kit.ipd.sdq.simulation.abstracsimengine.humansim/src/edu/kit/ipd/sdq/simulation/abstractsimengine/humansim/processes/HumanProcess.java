@@ -32,7 +32,7 @@ public class HumanProcess extends AbstractSimProcessDelegator {
         // goto Wörk ;)
     	
         while (getModel().getSimulationControl().isRunning()) {
-        	if(human.getWillWalk()){
+        	if(human.willWalk()){
         		walkToWorkDirectly();
         		work();
         		walkHomeDirectly();
@@ -154,7 +154,7 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		human.walkToWorkDirectly();
 		Utils.log(human, human.getName() + " walking to work. Wow, its a long way.");
 		
-		double walkingTime = human.WALKING_DURATION_WITHOUT_BUS.toSeconds().value();
+		double walkingTime = human.WALK_DIRECTLY.toSeconds().value();
 		passivate(walkingTime);
 		human.arriveAtWorkDirectlyWalking();
 		Utils.log(human, human.getName() + " walked to work. That was a long walk!");
@@ -164,7 +164,7 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 	private void walkHomeDirectly() {
 		human.walkHomeDirectly();
 		Utils.log(human, human.getName() + " walking home. Dubidu he is walking");
-		double walkingTime = human.WALKING_DURATION_WITHOUT_BUS.toSeconds().value();
+		double walkingTime = human.WALK_DIRECTLY.toSeconds().value();
 		passivate(walkingTime);
 		human.arriveAtHomeDirectlyWalking();
 		Utils.log(human, human.getName() + " walked home. That was a long walk!");

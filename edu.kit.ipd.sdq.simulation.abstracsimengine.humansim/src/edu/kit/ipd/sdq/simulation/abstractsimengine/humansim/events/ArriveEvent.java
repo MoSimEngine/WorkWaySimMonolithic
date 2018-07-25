@@ -21,8 +21,9 @@ public class ArriveEvent extends AbstractSimEventDelegator<Bus> {
     public void eventRoutine(Bus bus) {
         // arrive at the target station
         BusStop currentStation = bus.arrive();
-        Utils.log(bus, "Arrived at station " + currentStation + ". Travelling took " + travelingTime / 60.0
-                + " minutes.");
+        
+//        Utils.log(bus, "Arrived at station " + currentStation + ". Travelling took " + travelingTime / 60.0
+//                + " minutes.");
         for (Human hu : bus.getTransportedHumans()) {
 			hu.addTimeToTimeDriven(travelingTime);
 		}

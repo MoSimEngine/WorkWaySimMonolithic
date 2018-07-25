@@ -17,7 +17,7 @@ public class HumanWalksDirectlyHomeEvent extends AbstractSimEventDelegator<Human
 			
 		human.walkHomeDirectly();
 		Utils.log(human, human.getName() + " walking home. Dubidu human is walking");
-		double walkingTime = human.WALKING_DURATION_WITHOUT_BUS.toSeconds().value();
+		double walkingTime = human.WALK_DIRECTLY.toSeconds().value();
 		
 		HumanArrivesHomeEvent e = new HumanArrivesHomeEvent(this.getModel(), "Human arrives home walking directly");
 		e.schedule(human, walkingTime);

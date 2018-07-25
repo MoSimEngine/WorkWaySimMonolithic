@@ -47,6 +47,7 @@ public class LoadPassengersEvent extends AbstractSimEventDelegator<Bus> {
     			throw new IllegalStateException("Human is collected, but not at correct stop");
     		}
     		h.setCollected(true);
+    		h.calculateWaitedTime();
     		h.addTimeToTimeDriven(totalLoadingTime);
         }
         //position.setWaitingPassengers(remainingPassengers);

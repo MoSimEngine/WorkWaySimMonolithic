@@ -17,7 +17,7 @@ public class TravelEvent extends AbstractSimEventDelegator<Bus> {
     public void eventRoutine(Bus bus) {
         RouteSegment segment = bus.travel();
 
-        Utils.log(bus, "Travelling to station " + segment.getTo());
+        //Utils.log(bus, "Travelling to station " + segment.getTo());
 
         double drivingTime = Duration.hours(segment.getDistance() / (double) segment.getAverageSpeed()).toSeconds()
                 .value();

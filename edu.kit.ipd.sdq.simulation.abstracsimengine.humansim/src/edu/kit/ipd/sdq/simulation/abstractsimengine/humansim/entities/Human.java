@@ -1,5 +1,6 @@
 package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
@@ -23,13 +24,22 @@ public class Human extends AbstractSimEntityDelegator {
 //		
 //		
 		WALKING_DIRECTLY_TO_WORK,
-		WALKING_DIRECTLY_HOME
-//		DRIVING
+		WALKING_DIRECTLY_HOME,
+		
+		DRIVING_BY_TAXI_TO_WORK,
+		DRIVING_BY_TAXI_HOME,
+		WAITING_FOR_TAXI,
+	}
+	
+	
+	public enum HumanBehaviour{
+		DRIVING_BY_BUS,
+		WALKING,
+		DRIVING_BY_TAXI
 	}
 
 	private HumanState state;
-
-	private boolean willWalk;
+	private HumanBehaviour behaviour;
 
 	private BusStop homeBusStop;
 
@@ -44,13 +54,32 @@ public class Human extends AbstractSimEntityDelegator {
 	public final Duration HOME_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
 
 	public final Duration WORK_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
-
-	public  final Duration WALKING_DURATION_WITHOUT_BUS =  Duration.minutes(2*(HOME_TO_STATION.toMinutes().value() + WORK_TO_STATION.toMinutes().value()  + Duration.minutes(new Random().nextInt(150)).value()));
+	
+	public final Duration WALK_DIRECTLY = Duration.minutes(WORK_TO_STATION.toMinutes().value() + HOME_TO_STATION.toMinutes().value() + Duration.minutes(new Random().nextInt(200) + 1).value());
+	
+	public final Duration DRIVE_BY_TAXI_TO_WORK = Duration.minutes(0.5*WORK_TO_STATION.toMinutes().value() + (new Random().nextInt(50) + 1));
+	public final Duration DRIVE_BY_TAXI_HOME = Duration.minutes(0.5*HOME_TO_STATION.toMinutes().value() + (new Random().nextInt(50) + 1));
+	
 	
 	public  final Duration WORKTIME = Duration.hours(8);
 	
+	
+	
 	public   Duration FREETIME = Duration.hours(0); 
 	private Duration timeDriven = Duration.seconds(0);
+	private ArrayList<Duration> awayFromHomeTimes;
+	private ArrayList<Duration> busWaitingTimes;
+	private ArrayList<Duration> drivingTimes;
+	
+	
+	private Duration timeWaitedAtBusStop = Duration.seconds(0);
+	
+	private double timePointAtBusStop = 0;
+	
+	private boolean drivesByTaxiToWork;
+	private boolean drivesByTaxiHome;
+	
+	public Taxi registeredTaxi;
 	
 
 
@@ -58,15 +87,25 @@ public class Human extends AbstractSimEntityDelegator {
 		super(model, name);
 		homeBusStop = home;
 		workBusStop = work;
-
+		
+		BusStop[] stops = {homeBusStop, workBusStop};
+		
 		// start at home
 		position = home;
 		state = HumanState.AT_HOME;
-		willWalk =  new Random().nextBoolean();
-		//willWalk =  false;
+		
+		behaviour = HumanBehaviour.values()[new Random().nextInt(2)];
+
+		
 		destination = workBusStop;
 		
+		drivesByTaxiToWork = new Random().nextBoolean();
+		drivesByTaxiHome = new Random().nextBoolean();
 		
+		awayFromHomeTimes = new ArrayList<Duration>();
+		busWaitingTimes = new ArrayList<Duration>();
+		drivingTimes = new ArrayList<Duration>();
+			
 		System.out.println("Person: " + this.getName() + "HomeBS: " + home.getName() + " WorkBS:" + work.getName());
 	
 	}
@@ -78,23 +117,24 @@ public class Human extends AbstractSimEntityDelegator {
 	//BusDriving state changes
 	
 	public void walkToBusStopAtHome() {
-		if (!willWalk && state.equals(HumanState.AT_HOME))
+		if (behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.AT_HOME))
 			state = HumanState.GO_TO_BUSSTOP_HOME;
 		else
 			throw new IllegalStateException("Human don't want to drive! He will walk!!!"+ " CurrentState: " + this.state.toString());
 	}
 	
 	public void arriveAtBusStopHome() {
-		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_HOME)){
+		if (behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.GO_TO_BUSSTOP_HOME)){
 			state = HumanState.AT_BUSSTOP_HOME;
 			position = homeBusStop;
+			arriveAtBusStopWalkingTimePointLog();
 		}
 		else
 			throw new IllegalStateException("Human is lost! At least not at the Bus Stop at home"+ " CurrentState: " + this.state.toString());
 	}
 
 	public void driveToBusStopAtWork() {
-		if(!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME)){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.AT_BUSSTOP_HOME)){
 			state = HumanState.DRIVING_TO_WORK;
 			position = null;
 		}
@@ -103,7 +143,7 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 	
 	public void arriveAtBusStopWorkByDriving(){
-		if(!willWalk && state.equals(HumanState.DRIVING_TO_WORK)){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.DRIVING_TO_WORK)){
 			state = HumanState.AT_BUSSTOP_WORK;
 			position = workBusStop;
 		}
@@ -112,7 +152,7 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 	
 	public void walkToWorkFromBusStop() {
-		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_WORK)){
+		if (behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.AT_BUSSTOP_WORK)){
 			state = HumanState.WALK_TO_WORK_FROM_BUSSTOP;
 			position = null;
 		}
@@ -121,7 +161,7 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 	
 	public void arriveAtWorkBus() {
-		if(!willWalk && state.equals(HumanState.WALK_TO_WORK_FROM_BUSSTOP)){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.WALK_TO_WORK_FROM_BUSSTOP)){
 			state = HumanState.AT_WORK;
 			this.setDestination(this.getHomeBusStop());
 		}
@@ -131,16 +171,17 @@ public class Human extends AbstractSimEntityDelegator {
 	
 	
 	public void walkToBusStopAtWork() {
-		if (!willWalk && state.equals(HumanState.AT_WORK))
+		if (behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.AT_WORK))
 			state = HumanState.GO_TO_BUSSTOP_WORK;
 		else
 			throw new IllegalStateException("Human don't want to drive! He will walk!!!"+ " CurrentState: " + this.state.toString());
 	}
 
 	public void arriveAtBusStopWork() {
-		if (!willWalk && state.equals(HumanState.GO_TO_BUSSTOP_WORK)){
+		if (behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.GO_TO_BUSSTOP_WORK)){
 			state = HumanState.AT_BUSSTOP_WORK;
 			position = workBusStop;
+			arriveAtBusStopWalkingTimePointLog();
 			
 		}
 		else
@@ -148,7 +189,7 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 	
 	public void driveToBusStopAtHome() {
-		if(!willWalk && state.equals(HumanState.AT_BUSSTOP_WORK)){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.AT_BUSSTOP_WORK)){
 			state = HumanState.DRIVING_HOME;
 			position = null;
 		}
@@ -157,7 +198,7 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 	
 	public void arriveAtBusStopHomeByDriving(){
-		if(!willWalk && state.equals(HumanState.DRIVING_HOME)){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.DRIVING_HOME)){
 			state = HumanState.AT_BUSSTOP_HOME;
 			position = homeBusStop;
 		}
@@ -166,7 +207,7 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 
 	public void walkHomeFromBusStop() {
-		if (!willWalk && state.equals(HumanState.AT_BUSSTOP_HOME)){
+		if (behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.AT_BUSSTOP_HOME)){
 			state = HumanState.WALK_HOME_FROM_BUSSTOP;
 			position = null;
 		}
@@ -175,7 +216,7 @@ public class Human extends AbstractSimEntityDelegator {
 	}
 	
 	public void arriveHomeBus() {
-		if(!willWalk && state.equals(HumanState.WALK_HOME_FROM_BUSSTOP)){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_BUS) && state.equals(HumanState.WALK_HOME_FROM_BUSSTOP)){
 			state = HumanState.AT_HOME;
 			this.setDestination(workBusStop);
 		}
@@ -189,32 +230,65 @@ public class Human extends AbstractSimEntityDelegator {
 	
 	
 	public void arriveAtWorkDirectlyWalking(){
-		if(willWalk && state.equals(HumanState.WALKING_DIRECTLY_TO_WORK))
+		if(behaviour.equals(HumanBehaviour.WALKING) && state.equals(HumanState.WALKING_DIRECTLY_TO_WORK))
 			state = HumanState.AT_WORK;
 		else 
 			throw new IllegalStateException("Human is not walking!!!"+ " CurrentState: " + this.state.toString());
 	}
 	
 	public void arriveAtHomeDirectlyWalking(){
-		if(willWalk && state.equals(HumanState.WALKING_DIRECTLY_HOME))
+		if(behaviour.equals(HumanBehaviour.WALKING) && state.equals(HumanState.WALKING_DIRECTLY_HOME))
 			state = HumanState.AT_HOME;
 		else 
 			throw new IllegalStateException("Human is not walking!!!"+ " CurrentState: " + this.state.toString());
 	}
 	
 	public void walkToWorkDirectly(){
-		if(willWalk && state.equals(HumanState.AT_HOME))
+		if(behaviour.equals(HumanBehaviour.WALKING) && state.equals(HumanState.AT_HOME))
 			state = HumanState.WALKING_DIRECTLY_TO_WORK;
 		else 
 			throw new IllegalStateException("Human is lost, but not at home" + " CurrentState: " + this.state.toString());
 	}
 	
 	public void walkHomeDirectly(){
-		if(willWalk && state.equals(HumanState.AT_WORK))
+		if(behaviour.equals(HumanBehaviour.WALKING) && state.equals(HumanState.AT_WORK))
 			state = HumanState.WALKING_DIRECTLY_HOME;
 		else 
 			throw new IllegalStateException("Human is lost, but not at work" + " CurrentState: " + this.state.toString() );
 	}
+	
+	//Taxi state change
+	
+	
+
+	public void arriveAtWorkByTaxi(){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_TAXI) && state.equals(HumanState.DRIVING_BY_TAXI_TO_WORK))
+			state = HumanState.AT_WORK;
+		else 
+			throw new IllegalStateException("Human is using a taxi!!!"+ " CurrentState: " + this.state.toString());
+	}
+	
+	public void arriveAtHomeByTaxi(){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_TAXI) && state.equals(HumanState.DRIVING_BY_TAXI_HOME))
+			state = HumanState.AT_HOME;
+		else 
+			throw new IllegalStateException("Human is using a taxi!!!"+ " CurrentState: " + this.state.toString());
+	}
+	
+	public void driveToWorkByTaxi(){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_TAXI) && drivesByTaxiToWork && state.equals(HumanState.AT_BUSSTOP_HOME))
+			state = HumanState.DRIVING_BY_TAXI_TO_WORK;
+//		else 
+//			throw new IllegalStateException("Human is lost, but not at home" + " CurrentState: " + this.state.toString());
+	}
+	
+	public void driveHomeByTaxi(){
+		if(behaviour.equals(HumanBehaviour.DRIVING_BY_TAXI) && drivesByTaxiHome && state.equals(HumanState.AT_BUSSTOP_WORK))
+			state = HumanState.WALKING_DIRECTLY_HOME;
+//		else 
+//			throw new IllegalStateException("Human is lost, but not at work" + " CurrentState: " + this.state.toString() );
+	}
+
 	
 	
 	
@@ -242,9 +316,6 @@ public class Human extends AbstractSimEntityDelegator {
 		return this.workBusStop;
 	}
 	
-	public boolean getWillWalk(){
-		return this.willWalk;
-	}
 
 	public boolean isCollected() {
 		return collected;
@@ -262,8 +333,28 @@ public class Human extends AbstractSimEntityDelegator {
 		return timeDriven;
 	}
 
+	public HumanBehaviour getBehaviour(){
+		return behaviour;
+	}
+	
+	public ArrayList<Duration> getBusWaitingTimes(){
+		return busWaitingTimes;
+	}
+	
+	public ArrayList<Duration> getDrivingTimes(){
+		return drivingTimes;
+	}
+	
 	public void setTimeDriven(Duration timeDriven) {
 		this.timeDriven = timeDriven;
+	}
+	
+	public boolean willWalk(){
+		return behaviour.equals(HumanBehaviour.WALKING);
+	}
+	
+	public ArrayList<Duration> getAwayFromHomeTimes(){
+		return awayFromHomeTimes;
 	}
 	
 	public void addTimeToTimeDriven(double additionalTimeInSeconds){
@@ -271,21 +362,91 @@ public class Human extends AbstractSimEntityDelegator {
 		this.timeDriven = Duration.seconds(additional);
 	}
 	
+	public void arriveAtBusStopWalkingTimePointLog(){
+		
+		if (timePointAtBusStop != 0.0)
+			throw new IllegalStateException("time point arrived at bus stop was not zero");
+		
+		timePointAtBusStop = getModel().getSimulationControl().getCurrentSimulationTime();
+	}
+	
+	public void calculateWaitedTime(){
+		timeWaitedAtBusStop = Duration.seconds(timeWaitedAtBusStop.toSeconds().value() + Duration.seconds(getModel().getSimulationControl().getCurrentSimulationTime() - timePointAtBusStop).value());
+		
+		timePointAtBusStop = 0;
+		Utils.log(this, "Caluclated New Waitingtime: " + timeWaitedAtBusStop.toSeconds().value() );
+	}
+	
+	
+	
 	public void calculateFreeTime(){
-		if(!willWalk){
+		Duration onTheWay = Duration.seconds(0);
+		if(behaviour.equals(HumanBehaviour.WALKING)){
+			onTheWay = Duration.seconds(WORKTIME.toSeconds().value() + 2*WALK_DIRECTLY.toSeconds().value()); 
+		} else if (behaviour.equals(HumanBehaviour.DRIVING_BY_BUS)){
+			onTheWay = Duration.seconds(WORKTIME.toSeconds().value() + 2*HOME_TO_STATION.toSeconds().value() + 2* WORK_TO_STATION.toSeconds().value() + timeDriven.toSeconds().value() + timeWaitedAtBusStop.value());
+		} else if (behaviour.equals(HumanBehaviour.DRIVING_BY_TAXI)){
+		
 			
-			double freeTimeWithOutDriven = 24 - 2*(WORKTIME.toHours().value() - HOME_TO_STATION.toHours().value() - WORK_TO_STATION.toHours().value());
-			double total= freeTimeWithOutDriven - timeDriven.toHours().value();
-			FREETIME = Duration.hours(total);
-			this.timeDriven = Duration.seconds(0);
-		} else {	
+			if(drivesByTaxiHome && drivesByTaxiToWork){
+				onTheWay = Duration.seconds(
+						// Home -> Station Home + Station_Home -> Work(Taxi)
+						HOME_TO_STATION.toSeconds().value() + DRIVE_BY_TAXI_TO_WORK.toSeconds().value() 
+						//WORKTIME
+						+ WORKTIME.toSeconds().value() 
+						// Work -> Station Work + Station Work -> Home(Taxi)
+						+ WORK_TO_STATION.toSeconds().value() + DRIVE_BY_TAXI_HOME.toSeconds().value());
+			} else if (drivesByTaxiToWork){
+				onTheWay = Duration.seconds(
+						// Home -> Station Home 
+						HOME_TO_STATION.toSeconds().value() 
+						// Drive Taxi Work
+						+ DRIVE_BY_TAXI_TO_WORK.toSeconds().value()
+						//WORKTIME
+						+ WORKTIME.toSeconds().value()
+						// Work -> Station Work
+						+ WORK_TO_STATION.toSeconds().value()
+						//Drive Bus
+						+ timeDriven.toSeconds().value()
+						//Way Home
+						+ HOME_TO_STATION.toSeconds().value());
+			} else if (drivesByTaxiHome){
+				onTheWay = Duration.seconds(
+						// Home -> Station Home + Station_Home -> Work(Taxi)
+						HOME_TO_STATION.toSeconds().value() 
+						//Drive Bus
+						+ timeDriven.toSeconds().value()
+						//Station Work -> Work
+						+ WORK_TO_STATION.toSeconds().value()
+						//WORKTIME
+						+ WORKTIME.toSeconds().value()
+						// Work -> Station Work
+						+ WORK_TO_STATION.toSeconds().value()
+						//Drive Taxi Home
+						+ DRIVE_BY_TAXI_HOME.toSeconds().value());
+			}	
 			
-			FREETIME = Duration.hours(24 - WORKTIME.toHours().value() - WALKING_DURATION_WITHOUT_BUS.toHours().value());
-			if(FREETIME.value() < 0.00){
-				FREETIME = Duration.hours(0);
-				Utils.log(this, this.getName() + " wow... walking does not leave much free time");
-			}
+			onTheWay = Duration.seconds(onTheWay.toSeconds().value() + timeWaitedAtBusStop.toSeconds().value());
 		}
+		
+		
+		
+		//Utils.log(this, "On the way:" + onTheWay.toHours().value() + " hours. Waited " + timeWaitedAtBusStop.toMinutes().value() + " minutes at bus stops");
+		
+		
+		
+		awayFromHomeTimes.add(onTheWay);
+		
+		Duration newDrivingTime = Duration.seconds(timeDriven.toSeconds().value());
+		Duration newWaitingTime = Duration.seconds(timePointAtBusStop);
+		
+		busWaitingTimes.add(timeWaitedAtBusStop);
+		drivingTimes.add(timeDriven);
+		double total= 24 - onTheWay.toHours().value();
+		FREETIME = Duration.hours(total);
+		this.timeDriven = Duration.seconds(0);
+		timePointAtBusStop = 0;
+		timeWaitedAtBusStop = Duration.seconds(0);
 	}
 	
 

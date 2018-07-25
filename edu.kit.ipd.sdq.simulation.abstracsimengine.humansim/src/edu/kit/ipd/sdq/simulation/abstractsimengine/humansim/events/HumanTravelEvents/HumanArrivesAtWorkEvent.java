@@ -14,7 +14,7 @@ public class HumanArrivesAtWorkEvent extends AbstractSimEventDelegator<Human>{
 
 	@Override
 	public void eventRoutine(Human human) {
-		if(human.getWillWalk()){
+		if(human.willWalk()){
 			human.arriveAtWorkDirectlyWalking();
 		} else {
 			human.arriveAtWorkBus();
