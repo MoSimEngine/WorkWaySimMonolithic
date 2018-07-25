@@ -24,6 +24,7 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelE
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.WalkToBusStopAtHomeEvent;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.processes.BusProcess;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.processes.HumanProcess;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.CSVHandler;
 
 
 public class HumanModel extends AbstractSimulationModel{
@@ -34,23 +35,24 @@ public class HumanModel extends AbstractSimulationModel{
 	 private BusStop stop2;
 	 private BusStop stop3;
 	 
-	 public int modelPosition;
+	 private double startTime; 
+	 
+	 public int modelRun;
 	 public LinkedList<Double> durations;
 	 
 	 private LinkedList<Human> humans;
 	 private Taxi[] taxis;
 	 
-	 private final int numHumans = 10;
+	 private final int numHumans = 100;
 	 
 	public HumanModel(ISimulationConfig config, ISimEngineFactory factory) {
 		super(config, factory);
 		humans = new LinkedList<Human>();
-		
 	}
 	
 	public void init() {
 		
-
+		startTime = System.nanoTime();
 		taxis = new Taxi[]{
 				new Taxi(this, "Taxi1"), 
 				new Taxi(this, "Taxi2")
@@ -125,8 +127,7 @@ public class HumanModel extends AbstractSimulationModel{
 	}
 	public void finalise() {
 		
-		String CSVDelimiter = ";";
-		String newline = "\n";
+	 	Double finalTime = (System.nanoTime() - startTime) / Math.pow(10, 9);
 		String file_header = "";
 		String csvAway = "";
 		String csvWaitingAtStation = "";
@@ -137,16 +138,16 @@ public class HumanModel extends AbstractSimulationModel{
 	 	
 	 	for (Human human : humans) {
 	 		
-	 		file_header += human.getName() + CSVDelimiter;
-	 		behaviourMarker += human.getBehaviour().toString() + CSVDelimiter;
+	 		file_header += human.getName() + CSVHandler.CSV_DELIMITER;
+	 		behaviourMarker += human.getBehaviour().toString() + CSVHandler.CSV_DELIMITER;
 	 		System.out.println("Human " + human.getName() + " is in State " + human.getState() + " and is "+ human.getBehaviour().toString());
 	 		if(getMaxNumValues < human.getAwayFromHomeTimes().size()){
 	 			getMaxNumValues = human.getAwayFromHomeTimes().size();
 	 		}
 		}
 	 	
-	 	file_header += newline;
-	 	behaviourMarker += newline;
+	 	file_header += CSVHandler.NEWLINE;
+	 	behaviourMarker += CSVHandler.NEWLINE;
 	 	
 	 	for(int i = 0; i < getMaxNumValues; i++){
 	 		
@@ -167,16 +168,16 @@ public class HumanModel extends AbstractSimulationModel{
 			 	}
 			 	
 			 	if(j < humans.size()-1){
-			 		csvAway += CSVDelimiter;
-			 		csvDrivingTimes += CSVDelimiter;
-			 		csvWaitingAtStation += CSVDelimiter;
+			 		csvAway += CSVHandler.CSV_DELIMITER;
+			 		csvDrivingTimes += CSVHandler.CSV_DELIMITER;
+			 		csvWaitingAtStation += CSVHandler.CSV_DELIMITER;
 			 	}
 			 	
 	 		}
 	 		
-	 		csvAway += newline;
-	 		csvDrivingTimes += newline;
-	 		csvWaitingAtStation += newline;
+	 		csvAway += CSVHandler.NEWLINE;
+	 		csvDrivingTimes += CSVHandler.NEWLINE;
+	 		csvWaitingAtStation += CSVHandler.NEWLINE;
 	 	}
 	 	
 		
@@ -205,7 +206,7 @@ public class HumanModel extends AbstractSimulationModel{
 	       	System.out.println("Waiting passengers at " + stop2.getName() + ":" + stop2.getPassengersInQueue());	
 	       	System.out.println("Waiting passengers at " + stop3.getName() + ":" + stop3.getPassengersInQueue());
 	       	
-	       	FileWriter fileWriter = null;
+	       	
 	       	String[] csvs = {csvAway, csvDrivingTimes, csvWaitingAtStation};
 	       	
 	       	for(int i = 0; i < csvs.length; i++){
@@ -227,27 +228,16 @@ public class HumanModel extends AbstractSimulationModel{
 				}	
 	       		
 	       		csvs[i] = csvs[i].replace('.', ',');
-
-	       		Path workingDirectory=Paths.get(".").toAbsolutePath();
-	       		try {
-		       		fileWriter = new FileWriter(workingDirectory.toString() + "\\" + s + ".csv");
-		       		fileWriter.append(file_header.toString());
-		       		fileWriter.append(csvs[i]);
-		       		fileWriter.append(behaviourMarker);
-		       	} catch (Exception e) {
-		            System.out.println("Error in CsvFileWriter !!!");
-		            e.printStackTrace();
-		        } finally {            
-		            try {
-		                fileWriter.flush();
-		                fileWriter.close();
-		            } catch (IOException e) {
-
-		                System.out.println("Error while flushing/closing fileWriter !!!");
-		                e.printStackTrace();
-		            }
-		        }
+	       		
+	       		CSVHandler.writeCSVFile(s, csvs[i]);
+	       		
 	        }      	
+	       	
+	       	
+	       	
+	       	CSVHandler.readCSVAndAppend("realTimeSimRunningTimes", Math.round(finalTime*100.00)/100.00 + CSVHandler.CSV_DELIMITER);
+	       	
+	       	
 	}
 
     /**
