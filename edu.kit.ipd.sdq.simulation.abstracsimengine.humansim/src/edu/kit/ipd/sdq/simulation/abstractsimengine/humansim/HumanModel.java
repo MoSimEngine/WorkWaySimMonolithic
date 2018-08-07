@@ -43,7 +43,7 @@ public class HumanModel extends AbstractSimulationModel{
 	 private LinkedList<Human> humans;
 	 private Taxi[] taxis;
 	 
-	 private final int numHumans = 100;
+	 private final int numHumans = 50;
 	 
 	public HumanModel(ISimulationConfig config, ISimEngineFactory factory) {
 		super(config, factory);
@@ -182,26 +182,26 @@ public class HumanModel extends AbstractSimulationModel{
 	 	
 		
 		 
-		 for (Human human : this.humans) {
-			 	
-			 	//Duration[] away = (Duration[]) human.getAwayFromHomeTimes().toArray();
-			 	
-			 	ArrayList<Duration> away = human.getAwayFromHomeTimes();
-			 	ArrayList<Duration> driven = human.getDrivingTimes();
-			 	ArrayList<Duration> waited = human.getBusWaitingTimes();
-			 	
-			 	
-			 	for (int i = 0; i < away.size(); i++){
-			 		
-			 		
-			 		System.out.println("Day " + i + ": Away From Home (Hours)" + Math.round(away.get(i).toHours().value()*100.00) /100.00 
-			 				+ "; Driven (Minutes): " + Math.round(driven.get(i).toMinutes().value() * 100.00)/100.00 
-			 				+ "; Waiting at Stations (Minutes): " + waited.get(i).toMinutes().value());
-				}
-			 	
-			 	
-		        System.out.println("-----------------------------");
-		}
+//		 for (Human human : this.humans) {
+//			 	
+//			 	//Duration[] away = (Duration[]) human.getAwayFromHomeTimes().toArray();
+//			 	
+//			 	ArrayList<Duration> away = human.getAwayFromHomeTimes();
+//			 	ArrayList<Duration> driven = human.getDrivingTimes();
+//			 	ArrayList<Duration> waited = human.getBusWaitingTimes();
+//			 	
+//			 	
+//			 	for (int i = 0; i < away.size(); i++){
+//			 		
+//			 		
+//			 		System.out.println("Day " + i + ": Away From Home (Hours)" + Math.round(away.get(i).toHours().value()*100.00) /100.00 
+//			 				+ "; Driven (Minutes): " + Math.round(driven.get(i).toMinutes().value() * 100.00)/100.00 
+//			 				+ "; Waiting at Stations (Minutes): " + waited.get(i).toMinutes().value());
+//				}
+//			 	
+//			 	
+//		        System.out.println("-----------------------------");
+//		}
 	       	System.out.println("Waiting passengers at " + stop1.getName() + ":" + stop1.getPassengersInQueue());
 	       	System.out.println("Waiting passengers at " + stop2.getName() + ":" + stop2.getPassengersInQueue());	
 	       	System.out.println("Waiting passengers at " + stop3.getName() + ":" + stop3.getPassengersInQueue());
@@ -224,18 +224,22 @@ public class HumanModel extends AbstractSimulationModel{
 					break;
 
 				default:
-					throw new IllegalStateException("More than tree files");
+					throw new IllegalStateException("More than three files");
 				}	
 	       		
 	       		csvs[i] = csvs[i].replace('.', ',');
 	       		
-	       		CSVHandler.writeCSVFile(s, csvs[i]);
+	       		
+	       		CSVHandler.writeCSVFile(s, file_header + behaviourMarker + csvs[i]);
 	       		
 	        }      	
 	       	
+	       	Double d =  Math.round(finalTime*100.00)/100.00;
+	       	String s = d.toString();
 	       	
+	       	s = s.replace('.', ',');
 	       	
-	       	CSVHandler.readCSVAndAppend("realTimeSimRunningTimes", Math.round(finalTime*100.00)/100.00 + CSVHandler.CSV_DELIMITER);
+	       	CSVHandler.readCSVAndAppend("realTimeSimRunningTimes", s + CSVHandler.CSV_DELIMITER);
 	       	
 	       	
 	}
