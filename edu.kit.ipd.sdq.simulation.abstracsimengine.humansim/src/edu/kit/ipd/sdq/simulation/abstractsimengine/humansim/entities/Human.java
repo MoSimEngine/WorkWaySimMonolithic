@@ -89,8 +89,8 @@ public class Human extends AbstractSimEntityDelegator {
 		position = home;
 		state = HumanState.AT_HOME;
 		
-		//behaviour = HumanBehaviour.values()[new Random().nextInt(2)];
-		behaviour = HumanBehaviour.DRIVING_BY_BUS;
+		behaviour = HumanBehaviour.values()[new Random().nextInt(2)];
+	
 		
 		destination = workBusStop;
 		
