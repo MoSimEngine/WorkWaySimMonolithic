@@ -54,8 +54,10 @@ public class BusProcess extends AbstractSimProcessDelegator {
         	
         	totalLoadingTime += loadingTime;
         	Utils.log(bus, "Loading " + h.getName() + " at positio + " + position.getName());
-            passivate(loadingTime);
+            
             h.setCollected(true);
+
+            passivate(loadingTime);
         }
         
         
@@ -67,12 +69,13 @@ public class BusProcess extends AbstractSimProcessDelegator {
         if (remainingPassengers > 0) {
            // Utils.log(bus, "Bus is full. Remaining passengers at bus station: " + position.getWaitingPassengers());
         }
+        
     }
 
     private void travelToNextStation() {
         RouteSegment segment = bus.travel();
 
-        Utils.log(bus, "Travelling to station " + segment.getTo());
+        //Utils.log(bus, "Travelling to station " + segment.getTo());
 
         double drivingTime = Duration.hours(segment.getDistance() / (double) segment.getAverageSpeed()).toSeconds()
                 .value();
@@ -107,7 +110,7 @@ public class BusProcess extends AbstractSimProcessDelegator {
 
         // wait for the passengers to leave the bus
 //        double unloadingTime = 100 *  Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value();
-//        passivate(unloadingTime);
+        //passivate(totalUnloadingTime);
 
        //Utils.log(bus, "Unloading finished. Took " + totalUnloadingTime + " seconds.");
     }

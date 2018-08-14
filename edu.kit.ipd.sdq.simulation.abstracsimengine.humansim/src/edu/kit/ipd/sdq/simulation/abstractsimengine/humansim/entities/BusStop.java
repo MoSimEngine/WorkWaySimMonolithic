@@ -15,13 +15,12 @@ public class BusStop extends AbstractSimEntityDelegator {
     
     private ConcurrentLinkedQueue<Human> passengers;
     
-    private Taxi[] taxis;
+
     
-    public BusStop(ISimulationModel model, String name, Taxi[] taxis) {
+    public BusStop(ISimulationModel model, String name) {
         super(model, name);
         
        passengers = new ConcurrentLinkedQueue<Human>();
-       this.taxis = taxis;
     }
 
     public int getWaitingPassengers() {
@@ -32,7 +31,7 @@ public class BusStop extends AbstractSimEntityDelegator {
         this.waitingPassengers = waitingPassengers;
     }
     
-    public synchronized void setPassenger(Human human){
+    public synchronized void setHuman(Human human){
     	passengers.add(human);
     }
     
@@ -46,10 +45,6 @@ public class BusStop extends AbstractSimEntityDelegator {
     	} else {
     		return passengers.size();
     	}	
-    }
-    
-    public Taxi retrieveRandomTaxi(){
-    	return taxis[new Random().nextInt(taxis.length)];
     }
     
     @Override

@@ -14,7 +14,7 @@ public class HumanSimulationExample implements IApplication {
 	private HumanModel model;
 	private ISimulationControl simControl;
 	
-	 private static final Duration MAX_SIMULATION_TIME = Duration.hours(8761);
+	 private static final Duration MAX_SIMULATION_TIME = HumanSimValues.MAX_SIM_TIME;
 	
 	
 	public HumanSimulationExample() {

@@ -16,7 +16,7 @@ public class HumanArriveByBusAtBusStopWorkEvent extends AbstractSimEventDelegato
 		// TODO Auto-generated method stub
 		human.arriveAtBusStopWorkByDriving();
 		human.setCollected(false);
-		
+		human.calculateDrivingTime();
 		HumanWalkFromBusStopToWorkEvent e = new HumanWalkFromBusStopToWorkEvent(this.getModel(), "Human walks from bus stop work to work");
 		e.schedule(human, 0);
 	}

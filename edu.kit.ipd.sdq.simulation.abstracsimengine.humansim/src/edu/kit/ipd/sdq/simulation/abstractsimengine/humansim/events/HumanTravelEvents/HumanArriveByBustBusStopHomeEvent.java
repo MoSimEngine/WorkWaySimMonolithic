@@ -17,6 +17,7 @@ public class HumanArriveByBustBusStopHomeEvent extends AbstractSimEventDelegator
 		// TODO Auto-generated method stub
 		human.arriveAtBusStopHomeByDriving();
 		human.setCollected(false);
+		human.calculateDrivingTime();
 		Utils.log(human, human.getName() + "arrived at BusStop at home - by bus");
 		
 		HumanWalkFromBusStopHomeToHomeEvent e = new HumanWalkFromBusStopHomeToHomeEvent(this.getModel(), "Human walks home");

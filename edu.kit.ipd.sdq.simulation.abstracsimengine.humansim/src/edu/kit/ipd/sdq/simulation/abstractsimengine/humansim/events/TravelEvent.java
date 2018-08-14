@@ -22,6 +22,7 @@ public class TravelEvent extends AbstractSimEventDelegator<Bus> {
         double drivingTime = Duration.hours(segment.getDistance() / (double) segment.getAverageSpeed()).toSeconds()
                 .value();
 
+//        Utils.log(bus, "next time" + getModel().getSimulationControl().getCurrentSimulationTime() + drivingTime);
         // wait for the bus to arrive at the next station^
         ArriveEvent e = new ArriveEvent(drivingTime, this.getModel(), "Arrive Event");
         e.schedule(bus, drivingTime);

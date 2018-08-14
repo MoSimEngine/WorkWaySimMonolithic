@@ -5,11 +5,13 @@ import java.util.LinkedList;
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Duration;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.HumanSimValues;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Bus;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanArriveByBusAtBusStopWorkEvent;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanArriveByBustBusStopHomeEvent;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanExitsBusEvent;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
 public class UnloadPassengersEvent extends AbstractSimEventDelegator<Bus> {
@@ -27,40 +29,27 @@ public class UnloadPassengersEvent extends AbstractSimEventDelegator<Bus> {
         bus.unload();
 
         // wait for the passengers to leave the bus
-        int numTransportedHumanSize = bus.getNumTransportedHumans();
+
+        
         double totalUnloadingTime = 0.0;
-        for(int i = 0; i < numTransportedHumanSize; i++){
-        	
-        	
-        	
+        double unloadingTime = Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value();
+        for(int i = 0; i < bus.getNumTransportedHumans(); i++){
         	Human h = bus.unloadHuman();
-        	if(h != null & h.getDestination().equals(bus.getPosition())){
+        	if(h.getDestination().equals(bus.getPosition())){
         		Utils.log(bus, "Unloading " + h.getName() + " at position " + position.getName());
-        		totalUnloadingTime += Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value();
-        		tmpHumans.add(h);
+        		totalUnloadingTime += unloadingTime;
         		
-        		if(bus.getPosition().equals(h.getHomeBusStop())){
-        			HumanArriveByBustBusStopHomeEvent e = new HumanArriveByBustBusStopHomeEvent(this.getModel(), "Human arrived at busstop home by bus");
-        			e.schedule(h, Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value());
-    			} else if (bus.getPosition().equals(h.getWorkBusStop())){
-    				HumanArriveByBusAtBusStopWorkEvent e = new HumanArriveByBusAtBusStopWorkEvent(this.getModel(), "Human arrived at bustop work by bus");
-    				e.schedule(h, Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value());
-    			} else {
-    				throw new IllegalStateException("Human is thrown out, but not at correct stop");
-    			}
+        			if(HumanSimValues.USE_SPIN_WAIT){
+            			h.setCollected(false);
+            		} else {
+            			HumanExitsBusEvent e = new HumanExitsBusEvent(getModel(), "HumanExitsBus");
+            			e.schedule(h, Bus.UNLOADING_TIME_PER_PASSENGER.toHours().value());
+            		} 
         	} else {
-        		bus.transportHuman(h);
-        	}
+        			bus.transportHuman(h);
+        		}
         }
-        
-        for (Human human : tmpHumans) {
-			human.addTimeToTimeDriven(totalUnloadingTime);
-		}
-        for (Human human : bus.getTransportedHumans()) {
-			human.addTimeToTimeDriven(totalUnloadingTime);
-		}
-        
-        
+//        Utils.log(bus, "next time" + getModel().getSimulationControl().getCurrentSimulationTime() + totalUnloadingTime);
         UnloadingFinishedEvent e = new UnloadingFinishedEvent(totalUnloadingTime, this.getModel(), "Unload Finished");
         e.schedule(bus, totalUnloadingTime);
 

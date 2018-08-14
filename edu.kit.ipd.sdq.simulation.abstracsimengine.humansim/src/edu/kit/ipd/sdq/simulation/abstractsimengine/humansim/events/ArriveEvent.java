@@ -24,9 +24,7 @@ public class ArriveEvent extends AbstractSimEventDelegator<Bus> {
         
 //        Utils.log(bus, "Arrived at station " + currentStation + ". Travelling took " + travelingTime / 60.0
 //                + " minutes.");
-        for (Human hu : bus.getTransportedHumans()) {
-			hu.addTimeToTimeDriven(travelingTime);
-		}
+
         // schedule unloading event
         UnloadPassengersEvent e = new UnloadPassengersEvent(this.getModel(), "Unload Passengers");
         e.schedule(bus, 0);

@@ -5,6 +5,7 @@ import java.util.Random;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimProcessDelegator;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Duration;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.HumanSimValues;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Route.RouteSegment;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Bus;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
@@ -38,16 +39,24 @@ public class HumanProcess extends AbstractSimProcessDelegator {
         		walkHomeDirectly();
         		live();
         	} else {
-        	walkToBusStopAtHome();
-        	waitForBus();
-        	driveToBusStopAtWork();
-        	walkFromBusStopToWork();
-        	work();
-        	walkToBusStopFromWork();
-        	waitForBus();
-        	driveToBusStopAtHome();
-        	walkFromBusStopHome();
-        	live();
+        		walkToBusStopAtHome();
+	    		arriveAtBusStopHome();
+	    		registerAtBusStopHome();
+	    		waitForBusHome();
+	    		humanDrivingBusToWork();
+	    		arriveAtBusStopWorkByBus();
+	    		walkFromBusStopToWork();
+	    		humanArrivesAtWork();
+	    		work();
+	    		walkToBusStopFromWork();
+	    		humanArrivesAtBusStopWork();
+	    		registerAtBusStopWork();
+	    		waitForBusWork();
+	    		humanDrivingBusHome();
+	    		arriveAtBusStopHomeByBus();
+	    		walkFromBusStopHome();
+	    		humanArrivesAtHome();
+	    		live();
         	}
         }
     }
@@ -62,40 +71,68 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		Utils.log(human, human.getName() + " walks to home busstop:" + human.getHomeBusStop().getName() + ".  I don't like workdays ...");
 		double walkToBusStopHomeDuration = human.HOME_TO_STATION.toSeconds().value();
 		passivate(walkToBusStopHomeDuration);
-		human.arriveAtBusStopHome();
-		human.getPosition().setPassenger(human);
+
 	}
+
+
+    private void arriveAtBusStopHome(){
+
+    	
+    	
+    	Utils.log(human, "Registering at BusStop"+ human.getHomeBusStop().getName());
+		
+		
+		human.arriveAtBusStopHome();
+		
+		//getFederate().log(human, human.getName() + " waits at busstop:" + human.getHomeBusStop().getName());
+		
+	
+    }
     
+    private void registerAtBusStopHome(){
     
-	private void waitForBus() {
+    	human.getHomeBusStop().setHuman(human);
+    	human.setDestination(human.getWorkBusStop());
+		human.arriveAtBusStopWalkingTimePointLog();
+
+    }
+    
+	private void waitForBusHome() {
 		// TODO implement waiting until bus arrives at busstop - i hope simulation engine is parallel xD
 		Utils.log(human, human.getName() + " waits at busstop:" + human.getHomeBusStop().getName());
 
 		while(!human.isCollected()){
 			//Utils.log(human, human.getName() + " still driving in bus to " + human.getHomeBusStop());
-			human.addTimeToTimeDriven(1);
-			passivate(1);
+			
+			passivate(HumanSimValues.BUSY_WAITING_TIME_STEP.toSeconds().value());
 		}
+		
+		human.calculateWaitedTime();
 
 		Utils.log(human, human.getName() + " entered bus at " + human.getPosition() );
 		
 	}
     
-	private void driveToBusStopAtWork() {
-		human.driveToBusStopAtWork();
-		Utils.log(human, human.getName() + " sits in bus on the way to work");
-
-			while(human.isCollected()){
-
-				//Utils.log(human, human.getName() + " still driving in bus to " + human.getHomeBusStop());
-				human.addTimeToTimeDriven(1);
-				passivate(1);
-			}
+	private void humanDrivingBusToWork(){
 
 		
+		human.driveToBusStopAtWork();
+		
+		while(human.isCollected()){
+			
+			passivate(HumanSimValues.BUSY_WAITING_TIME_STEP.toSeconds().value());
+			
+		}
+		
+		Utils.log(human, human.getName() + " left bus at " + human.getWorkBusStop().getName() );
+		human.calculateDrivingTime();
+		
+	}
+	
+	public void arriveAtBusStopWorkByBus(){
+	
 		human.arriveAtBusStopWorkByDriving();
-		Utils.log(human, human.getName() + "arrived at BusStop at work - by bus");
-
+		Utils.log(human, human.getName() + "arrived at BusStop at Work - by bus");
 	}
 	
 	private void walkFromBusStopToWork() {
@@ -103,10 +140,20 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		Utils.log(human, human.getName() + " is walking to work.");
 		double walkingToWork = human.WORK_TO_STATION.toSeconds().value();
 		passivate(walkingToWork);
-		human.arriveAtWorkBus();
-		Utils.log(human, human.getName() + " starts to work.");
+		
 	}
 	
+	private void humanArrivesAtWork(){
+
+		Utils.log(human, human.getName() + " arrives at work.");
+		if(human.willWalk()){
+			human.arriveAtWorkDirectlyWalking();
+		} else {
+			human.arriveAtWorkBus();
+		}
+		Utils.log(human, human.getName() + " starts to work.");
+		work();
+	}
 	
 	private void walkToBusStopFromWork() {
 		human.walkToBusStopAtWork();
@@ -115,13 +162,43 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 
 		double walkingToBusStopWork = human.WORK_TO_STATION.toSeconds().value();
 		passivate(walkingToBusStopWork);
-		human.arriveAtBusStopWork();
-		human.getPosition().setPassenger(human);
+
 		Utils.log(human, human.getName() + "is at bus stop and halfway home!");
 	}
-
 	
+	private void humanArrivesAtBusStopWork(){
 
+		human.arriveAtBusStopWork();
+		Utils.log(human, human.getName() + "is at bus stop and halfway home!");
+		
+	
+	}
+	
+	private void registerAtBusStopWork(){
+	
+    	human.getWorkBusStop().setHuman(human);
+		human.setDestination(human.getHomeBusStop());
+		human.arriveAtBusStopWalkingTimePointLog();
+		
+		
+	}
+	
+	private void waitForBusWork(){
+		
+		
+		
+		// TODO implement waiting until bus arrives at busstop - i hope simulation engine is parallel xD
+		Utils.log(human, human.getName() + " waits at busstop:" + human.getWorkBusStop().getName());
+
+		while(!human.isCollected()){
+			
+			passivate(HumanSimValues.BUSY_WAITING_TIME_STEP.toSeconds().value());
+		}
+		
+		human.calculateWaitedTime();
+		Utils.log(human, human.getName() + " entered bus at " + human.getWorkBusStop().getName() );
+	}
+	
 	private void driveToBusStopAtHome() {
 		human.driveToBusStopAtHome();
 		Utils.log(human, human.getName() + "Is driving home for free time - to stop: " + human.getDestination().getName() +" by bus");
@@ -129,12 +206,30 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 			while(human.isCollected()){
 
 				//Utils.log(human, human.getName() + " still driving in bus to " + human.getHomeBusStop());
-				human.addTimeToTimeDriven(1);
-				passivate(1);
+				passivate(HumanSimValues.BUSY_WAITING_TIME_STEP.toSeconds().value());
 			}
 
 		human.arriveAtBusStopHomeByDriving();
 		Utils.log(human, human.getName() + "arrived at BusStop at home - by bus");
+	}
+	
+	private void humanDrivingBusHome(){
+	
+		human.driveToBusStopAtHome();
+		human.humanIsCollected();
+		
+		while(human.isCollected()){
+			passivate(20);
+		}
+		Utils.log(human, human.getName() + " left bus at " + human.getHomeBusStop().getName() );
+		human.calculateDrivingTime();
+	}
+
+	public void arriveAtBusStopHomeByBus(){
+		
+		Utils.log(human, human.getName() + "Arrived at Home BusStop at " + human.getHomeBusStop().getName() +" by bus");
+		human.arriveAtBusStopHomeByDriving();
+		
 	}
 
 	
@@ -143,8 +238,20 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		Utils.log(human, human.getName() + " walks home. Only a few steps now!");
 		double walkHomeDuration = human.HOME_TO_STATION.toSeconds().value();
 		passivate(walkHomeDuration);
-		human.arriveHomeBus();
+	
+	}
+	private void humanArrivesAtHome(){
+
+		if(human.willWalk()){
+			human.arriveAtHomeDirectlyWalking();
+		} else {
+			human.arriveHomeBus();
+		}
+		
+
 		Utils.log(human, human.getName() + " arrives at home. Afterwork Party!");
+		
+	
 	}
 	
 	
@@ -178,6 +285,14 @@ public class HumanProcess extends AbstractSimProcessDelegator {
 		double livingHisLife = human.FREETIME.toSeconds().value();
 		passivate(livingHisLife);
 		Utils.log(human, "Oh boy, time flies by... " + human.getName() + " stops living his life.");
+	}
+	
+	private void stopsLivingHisLive() throws Exception {
+		if(human.willWalk()){
+			walkToWorkDirectly();
+		} else {
+			walkToBusStopAtHome();
+		}
 	}
 	
 	private void work() {

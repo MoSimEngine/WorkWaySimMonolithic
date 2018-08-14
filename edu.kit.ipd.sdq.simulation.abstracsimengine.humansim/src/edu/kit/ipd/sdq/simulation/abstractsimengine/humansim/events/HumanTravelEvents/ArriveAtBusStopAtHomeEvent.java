@@ -19,9 +19,9 @@ public class ArriveAtBusStopAtHomeEvent  extends AbstractSimEventDelegator<Human
 		
 		human.arriveAtBusStopHome();
 		Utils.log(human, human.getName() + " arrives at bus stop "+ human.getPosition().getName());
-		BusStop position = human.getPosition();
-		position.setPassenger(human);
 		
+		RegisterAtBusStopHomeEvent e = new RegisterAtBusStopHomeEvent(this.getModel(), "Registers at BusStop home");
+		e.schedule(human, 0);
 		//WaitForBusEvent e = new WaitForBusEvent(this.getModel(), "WaitForBus");
 		
 		//e.schedule(human, 0);

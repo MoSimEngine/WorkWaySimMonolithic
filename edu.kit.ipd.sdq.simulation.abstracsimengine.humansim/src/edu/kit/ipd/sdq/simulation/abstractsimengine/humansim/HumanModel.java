@@ -17,7 +17,6 @@ import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Bus;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
-import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Taxi;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human.HumanBehaviour;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.LoadPassengersEvent;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanWalksDirectlyToWorkEvent;
@@ -29,7 +28,6 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.CSVHandler;
 
 public class HumanModel extends AbstractSimulationModel{
 
-	 private boolean PROCESS_ORIENTED = false;
 	 
 	 private BusStop stop1;
 	 private BusStop stop2;
@@ -41,9 +39,8 @@ public class HumanModel extends AbstractSimulationModel{
 	 public LinkedList<Double> durations;
 	 
 	 private LinkedList<Human> humans;
-	 private Taxi[] taxis;
+
 	 
-	 private final int numHumans = 50;
 	 
 	public HumanModel(ISimulationConfig config, ISimEngineFactory factory) {
 		super(config, factory);
@@ -53,16 +50,13 @@ public class HumanModel extends AbstractSimulationModel{
 	public void init() {
 		
 		startTime = System.nanoTime();
-		taxis = new Taxi[]{
-				new Taxi(this, "Taxi1"), 
-				new Taxi(this, "Taxi2")
-		};
+
 		
 		
         // define bus stops
-        stop1 = new BusStop(this, "Stop1", taxis);
-        stop2 = new BusStop(this, "Stop2", taxis);
-        stop3 = new BusStop(this, "Stop3", taxis);
+        stop1 = new BusStop(this, "Stop1");
+        stop2 = new BusStop(this, "Stop2");
+        stop3 = new BusStop(this, "Stop3");
 
         BusStop[] stops = {stop1, stop2, stop3};
         
@@ -75,12 +69,12 @@ public class HumanModel extends AbstractSimulationModel{
         // define buses
         Bus bus = new Bus(40, stop1, lineOne, this, "Bus 1");
    
-        if (PROCESS_ORIENTED) {
+        if (HumanSimValues.PROCESS_ORIENTED) {
             // schedule a process for each bus
             new BusProcess(bus).scheduleAt(0);
         	
         	// schedule a process for each human
-        	for(int i = 0; i < numHumans; i++){
+        	for(int i = 0; i < HumanSimValues.NUM_HUMANS; i++){
         		//new HumanProcess(new Human(stop1, stop3, this, "Bob" + i), bus).scheduleAt(0);
         		int homeBS = 0;
         		int workBS = 0;
@@ -100,7 +94,7 @@ public class HumanModel extends AbstractSimulationModel{
             
             
          // schedule a process for each human
-        	for(int i = 0; i < numHumans; i++){
+        	for(int i = 0; i < HumanSimValues.NUM_HUMANS; i++){
         		//new HumanProcess(new Human(stop1, stop3, this, "Bob" + i), bus).scheduleAt(0);
         		int homeBS = 0;
         		int workBS = 0;
@@ -239,7 +233,7 @@ public class HumanModel extends AbstractSimulationModel{
 	       	
 	       	s = s.replace('.', ',');
 	       	
-	       	CSVHandler.readCSVAndAppend("realTimeSimRunningTimes", s + CSVHandler.CSV_DELIMITER);
+	       	CSVHandler.readCSVAndAppend("ExecutionTimes", s + CSVHandler.CSV_DELIMITER);
 	       	
 	       	
 	}

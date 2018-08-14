@@ -19,6 +19,8 @@ public class HumanWorksEvent extends AbstractSimEventDelegator<Human>{
 		HumanEndsWorkingEvent e = new HumanEndsWorkingEvent(this.getModel(), "Human stops working");
 		e.schedule(human, working);
 		
+		
+		
 	}
 
 }

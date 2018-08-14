@@ -5,9 +5,9 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
-public class HumanArriveAtBusStopAtWorkEvent extends AbstractSimEventDelegator<Human>{
+public class arriveByBusAtBusStopWorkWithWaitingEvent extends AbstractSimEventDelegator<Human>{
 
-	protected HumanArriveAtBusStopAtWorkEvent(ISimulationModel model, String name) {
+	protected arriveByBusAtBusStopWorkWithWaitingEvent(ISimulationModel model, String name) {
 		super(model, name);
 		// TODO Auto-generated constructor stub
 	}
@@ -15,13 +15,11 @@ public class HumanArriveAtBusStopAtWorkEvent extends AbstractSimEventDelegator<H
 	@Override
 	public void eventRoutine(Human human) {
 		// TODO Auto-generated method stub
-		human.arriveAtBusStopWork();
-		Utils.log(human, human.getName() + "is at bus stop and halfway home!");
-		//human.getPosition().setHuman(human);
+		human.arriveAtBusStopWorkByDriving();
+		Utils.log(human, human.getName() + "arrived at BusStop at Work - by bus");
 		
-		RegisterAtBusStopWorkEvent e = new RegisterAtBusStopWorkEvent(getModel(), "Register at bus stop work");
+		HumanWalkFromBusStopToWorkEvent e = new HumanWalkFromBusStopToWorkEvent(getModel(),"WalkFromBusStopWorkToWork");
 		e.schedule(human, 0);
-		
 	}
 
 }
