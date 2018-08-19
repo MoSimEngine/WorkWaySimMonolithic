@@ -26,6 +26,8 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.processes.HumanProc
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.CSVHandler;
 
 
+
+
 public class HumanModel extends AbstractSimulationModel{
 
 	 
@@ -52,7 +54,6 @@ public class HumanModel extends AbstractSimulationModel{
 		startTime = System.nanoTime();
 
 		
-		
         // define bus stops
         stop1 = new BusStop(this, "Stop1");
         stop2 = new BusStop(this, "Stop2");
@@ -78,11 +79,15 @@ public class HumanModel extends AbstractSimulationModel{
         		//new HumanProcess(new Human(stop1, stop3, this, "Bob" + i), bus).scheduleAt(0);
         		int homeBS = 0;
         		int workBS = 0;
-        		
-        		while(homeBS == workBS){
-        			homeBS = new Random().nextInt(3);
-        			workBS = new Random().nextInt(3);
-        		}
+        		if(HumanSimValues.RANDOMIZED_HUMAN_STATIONS){
+            		while(homeBS == workBS){
+            			homeBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
+            			workBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
+            		}
+            		} else {
+            			homeBS = i % 3;
+            			workBS = (i % 3) + 1;
+            		}
         		Human hu = new Human(stops[homeBS], stops[workBS], this, "Bob" + i);
         		humans.add(hu);
         		new HumanProcess(hu, bus).scheduleAt(0);
@@ -99,10 +104,15 @@ public class HumanModel extends AbstractSimulationModel{
         		int homeBS = 0;
         		int workBS = 0;
         		
-        		while(homeBS == workBS){
-        			homeBS = new Random().nextInt(3);
-        			workBS = new Random().nextInt(3);
-        		}
+        		if(HumanSimValues.RANDOMIZED_HUMAN_STATIONS){
+            		while(homeBS == workBS){
+            			homeBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
+            			workBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
+            		}
+            		} else {
+            			homeBS = i % 3;
+            			workBS = (i % 3) + 1;
+            		}
         		Human hu = new Human(stops[homeBS], stops[workBS], this, "Bob" + i);
         		humans.add(hu);
         		
@@ -127,6 +137,7 @@ public class HumanModel extends AbstractSimulationModel{
 		String csvWaitingAtStation = "";
 		String csvDrivingTimes = "";
 		String behaviourMarker = "";
+		String csvFreeTimes = "";
 		
 		int getMaxNumValues = 0;
 	 	
@@ -149,22 +160,26 @@ public class HumanModel extends AbstractSimulationModel{
 	 			ArrayList<Duration> away = humans.get(j).getAwayFromHomeTimes();
 			 	ArrayList<Duration> driven = humans.get(j).getDrivingTimes();
 			 	ArrayList<Duration> waited = humans.get(j).getBusWaitingTimes();
+			 	ArrayList<Duration> free = humans.get(j).getFreeTimes();
 			 	
 			 	
 			 	if(away.size() >= i){
-			 		csvAway += Math.round(away.get(i).toHours().value()*100.00)/100.00;
-			 		csvDrivingTimes += Math.round(driven.get(i).toMinutes().value()*100.00)/100.00;
-			 		csvWaitingAtStation += Math.round(waited.get(i).toMinutes().value()*100.00)/100.00;
+			 		csvAway += away.get(i).toSeconds();
+			 		csvDrivingTimes += driven.get(i).toSeconds();
+			 		csvWaitingAtStation += waited.get(i).toSeconds();
+			 		csvFreeTimes += free.get(i).toSeconds();
 			 	} else {
 			 		csvAway += "-1";
 			 		csvDrivingTimes += "-1";
 			 		csvWaitingAtStation += "-1";
+			 		csvFreeTimes += "-1";
 			 	}
 			 	
 			 	if(j < humans.size()-1){
 			 		csvAway += CSVHandler.CSV_DELIMITER;
 			 		csvDrivingTimes += CSVHandler.CSV_DELIMITER;
 			 		csvWaitingAtStation += CSVHandler.CSV_DELIMITER;
+			 		csvFreeTimes += CSVHandler.CSV_DELIMITER;
 			 	}
 			 	
 	 		}
@@ -172,6 +187,7 @@ public class HumanModel extends AbstractSimulationModel{
 	 		csvAway += CSVHandler.NEWLINE;
 	 		csvDrivingTimes += CSVHandler.NEWLINE;
 	 		csvWaitingAtStation += CSVHandler.NEWLINE;
+	 		csvFreeTimes += CSVHandler.NEWLINE;
 	 	}
 	 	
 		
@@ -201,7 +217,7 @@ public class HumanModel extends AbstractSimulationModel{
 	       	System.out.println("Waiting passengers at " + stop3.getName() + ":" + stop3.getPassengersInQueue());
 	       	
 	       	
-	       	String[] csvs = {csvAway, csvDrivingTimes, csvWaitingAtStation};
+	       	String[] csvs = {csvAway, csvDrivingTimes, csvWaitingAtStation, csvFreeTimes};
 	       	
 	       	for(int i = 0; i < csvs.length; i++){
 	       		String s = "";
@@ -216,6 +232,9 @@ public class HumanModel extends AbstractSimulationModel{
 				case 2: 
 					s = "BusStationWaitingTimes";
 					break;
+				case 3:
+					s = "FreeTimes";
+					break;
 
 				default:
 					throw new IllegalStateException("More than three files");
@@ -224,9 +243,10 @@ public class HumanModel extends AbstractSimulationModel{
 	       		csvs[i] = csvs[i].replace('.', ',');
 	       		
 	       		
-	       		CSVHandler.writeCSVFile(s, file_header + behaviourMarker + csvs[i]);
+	       		CSVHandler.writeCSVFile(s, file_header + csvs[i]);
 	       		
 	        }      	
+	       	CSVHandler.writeCSVFile("HumanBehaviour", behaviourMarker);
 	       	
 	       	Double d =  Math.round(finalTime*100.00)/100.00;
 	       	String s = d.toString();

@@ -38,6 +38,7 @@ public class HumanSimulationExample implements IApplication {
 
 	public void stop() {
 		// nothing to do;
+		
 	}
 
 }

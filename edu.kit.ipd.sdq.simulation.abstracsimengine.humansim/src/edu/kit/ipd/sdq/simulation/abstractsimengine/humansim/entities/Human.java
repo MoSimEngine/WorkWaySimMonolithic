@@ -6,6 +6,7 @@ import java.util.Random;
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Duration;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.HumanSimValues;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
 
@@ -52,15 +53,11 @@ public class Human extends AbstractSimEntityDelegator {
 	
 	private volatile boolean collected;
 
-	public final Duration HOME_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
+	public Duration HOME_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
 
-	public final Duration WORK_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
+	public Duration WORK_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
 	
-	public final Duration WALK_DIRECTLY = Duration.minutes(WORK_TO_STATION.toMinutes().value() + HOME_TO_STATION.toMinutes().value() + Duration.minutes(new Random().nextInt(200) + 1).value());
-	
-	public final Duration DRIVE_BY_TAXI_TO_WORK = Duration.minutes(0.5*WORK_TO_STATION.toMinutes().value() + (new Random().nextInt(50) + 1));
-	public final Duration DRIVE_BY_TAXI_HOME = Duration.minutes(0.5*HOME_TO_STATION.toMinutes().value() + (new Random().nextInt(50) + 1));
-	
+	public Duration WALK_DIRECTLY = Duration.minutes(Duration.minutes(new Random().nextInt(200) + 1).value());
 	
 	public  final Duration WORKTIME = Duration.hours(8);
 	
@@ -88,9 +85,21 @@ public class Human extends AbstractSimEntityDelegator {
 		// start at home
 		position = home;
 		state = HumanState.AT_HOME;
-		
+		if(HumanSimValues.WALKING_ENABLED){
 		behaviour = HumanBehaviour.values()[new Random().nextInt(2)];
-	
+		} else {
+			behaviour = HumanBehaviour.DRIVING_BY_BUS;
+		}
+		
+		if(HumanSimValues.RANDOMIZED_HUMAN_VALUES){
+			HOME_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
+			WORK_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
+			WALK_DIRECTLY = Duration.minutes(Duration.minutes(new Random().nextInt(200) + 1).value());
+		} else {
+			HOME_TO_STATION = Duration.minutes(30);
+			WORK_TO_STATION = Duration.minutes(30);
+			WALK_DIRECTLY = Duration.minutes(90);
+		}
 		
 		destination = workBusStop;
 		
@@ -388,6 +397,7 @@ public class Human extends AbstractSimEntityDelegator {
 		double total= 24 - onTheWay.toHours().value();
 		FREETIME = Duration.hours(total);
 		System.out.println("Enjoys: " + FREETIME.toHours().value() + " of Freetime");
+		freeTimes.add(FREETIME.toHours());
 		this.timeDriven = Duration.seconds(0);
 		timePointAtBusStop = 0;
 		timeWaitedAtBusStop = Duration.seconds(0);

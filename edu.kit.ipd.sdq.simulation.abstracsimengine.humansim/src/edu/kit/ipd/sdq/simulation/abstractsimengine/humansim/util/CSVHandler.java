@@ -20,7 +20,7 @@ public class CSVHandler {
 		
 		String workingDirectory = "C:\\HumanSimData";
 		
-		System.out.println(workingDirectory);
+		
    		try {
        		fileWriter = new FileWriter(workingDirectory.toString() + "\\" + filename + ".csv" + "\\");
        		fileWriter.append(csvString);
@@ -75,7 +75,7 @@ public class CSVHandler {
 		String s = "";
 		//Path workingDirectory=Paths.get(".").toAbsolutePath();
 		String workingDirectory = "C:\\HumanSimData";
-		System.out.println(workingDirectory);
+	
 		File f = new File(workingDirectory + "\\" + fileName + ".csv");
 		if(f.exists() && !f.isDirectory()){
 		s = readCSV(fileName);
