@@ -364,6 +364,7 @@ public class Human extends AbstractSimEntityDelegator {
 	
 	public void calculateDrivingTime(){
 		timeDriven = Duration.seconds(timeDriven.toSeconds().value() + Duration.seconds(getModel().getSimulationControl().getCurrentSimulationTime() - timePointCollected).value());
+		System.out.println("New Time Driven" + timeDriven.value());
 		timePointCollected = 0.0;
 		//System.out.println("Human" + getName() + "New Time Driven" + timeDrivenEvent.toSeconds().value() + " at time " + getModel().getSimulationControl().getCurrentSimulationTime());
 		//Utils.log(this, "Caluclated New Drivingtime: " + timeDrivenEvent.toSeconds().value() );
@@ -377,21 +378,14 @@ public class Human extends AbstractSimEntityDelegator {
 			onTheWay = Duration.seconds(WORKTIME.toSeconds().value() + 2*HOME_TO_STATION.toSeconds().value() + 2* WORK_TO_STATION.toSeconds().value() + timeDriven.toSeconds().value() + timeWaitedAtBusStop.value());
 		}
 
-			
-		System.out.println("Time Driven:" + timeDriven.toHours().value());
-		System.out.println("Time Waited:" + timeWaitedAtBusStop.toHours().value());
-		System.out.println("On the way:"+ onTheWay);
-		
+
 		
 		//Utils.log(this, "On the way:" + onTheWay.toHours().value() + " hours. Waited " + timeWaitedAtBusStop.toMinutes().value() + " minutes at bus stops");
 		
 		
 		
 		awayFromHomeTimes.add(onTheWay);
-		
-		Duration newDrivingTime = Duration.seconds(timeDriven.toSeconds().value());
-		Duration newWaitingTime = Duration.seconds(timePointAtBusStop);
-		
+
 		busWaitingTimes.add(timeWaitedAtBusStop);
 		drivingTimes.add(timeDriven);
 		double total= 24 - onTheWay.toHours().value();

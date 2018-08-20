@@ -21,7 +21,7 @@ public class HumanArrivesHomeEvent extends AbstractSimEventDelegator<Human>{
 			human.arriveHomeBus();
 		}
 	
-		Utils.log(human, human.getName() + " arrives at home. Afterwork Party!");
+//		Utils.log(human, human.getName() + " arrives at home. Afterwork Party!");
 		HumanLivingHisLifeEvent e = new HumanLivingHisLifeEvent(human.getModel(), "Human is living his life");
 		e.schedule(human, 0);
 	}

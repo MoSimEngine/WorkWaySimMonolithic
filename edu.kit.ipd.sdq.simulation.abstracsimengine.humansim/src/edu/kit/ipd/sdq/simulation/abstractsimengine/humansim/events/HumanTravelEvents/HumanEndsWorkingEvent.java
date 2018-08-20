@@ -15,7 +15,7 @@ public class HumanEndsWorkingEvent extends AbstractSimEventDelegator<Human>{
 	@Override
 	public void eventRoutine(Human human) {
 		
-		Utils.log(human, "Finally its over..." + human.getName() + " stops working.");
+//		Utils.log(human, "Finally its over..." + human.getName() + " stops working.");
 		
 		if(human.willWalk()){
 			HumanWalksDirectlyHomeEvent e = new HumanWalksDirectlyHomeEvent(this.getModel(), "human walks home directly");

@@ -16,7 +16,7 @@ public class WalkToBusStopAtHomeEvent extends AbstractSimEventDelegator<Human>{
 	public void eventRoutine(Human human) {
 		
 		human.walkToBusStopAtHome();
-		Utils.log(human, human.getName() + " walks to home busstop:" + human.getHomeBusStop().getName() + ".  I don't like workdays ...");
+//		Utils.log(human, human.getName() + " walks to home busstop:" + human.getHomeBusStop().getName() + ".  I don't like workdays ...");
 		double walkToBusStopHomeDuration = human.HOME_TO_STATION.toSeconds().value();
 		ArriveAtBusStopAtHomeEvent e = new ArriveAtBusStopAtHomeEvent(this.getModel(), "Arrive at BusStop Home");
 		e.schedule(human, walkToBusStopHomeDuration);

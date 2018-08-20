@@ -16,15 +16,19 @@ public class RegisterAtBusStopHomeEvent extends AbstractSimEventDelegator<Human>
 	@Override
 	public void eventRoutine(Human human) {
 		
-		human.getHomeBusStop().setHuman(human);
-		human.setDestination(human.getWorkBusStop());
+		registerEvent regE = new registerEvent(getModel(), "Registering", human.getHomeBusStop());
+		changeDestinationEvent chaE = new changeDestinationEvent(getModel(), "ChangeDest", human.getWorkBusStop());
+		
+		regE.schedule(human, 1.0);
+		chaE.schedule(human, 1.0);
+		
 		human.arriveAtBusStopWalkingTimePointLog();
 		
-		Utils.log(human, "Registers at bus Stop:" + human.getHomeBusStop().getName());
+//		Utils.log(human, "Registers at bus Stop:" + human.getHomeBusStop().getName());
 		
 		if(HumanSimValues.USE_SPIN_WAIT){
 		WaitForBusAtHomeEvent e = new WaitForBusAtHomeEvent(this.getModel(), "Waiting for bus at home event");
-		e.schedule(human, 0);
+		e.schedule(human, 1.0);
 		return;
 		}
 		

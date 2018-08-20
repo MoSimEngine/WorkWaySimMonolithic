@@ -8,6 +8,7 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Bus;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanEntersBusEvent;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanEntersBusSpinWait;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
 public class LoadPassengersEvent extends AbstractSimEventDelegator<Bus> {
@@ -41,14 +42,15 @@ public class LoadPassengersEvent extends AbstractSimEventDelegator<Bus> {
 //           	e.schedule(h, Bus.LOADING_TIME_PER_PASSENGER.toSeconds().value());
         	
         	if(HumanSimValues.USE_SPIN_WAIT){
-        		h.setCollected(true);
+        		HumanEntersBusSpinWait e = new HumanEntersBusSpinWait(h.getModel(), "HumanEntersBusSpinWait");
+        		e.schedule(h, loadingTime);
         	} else {
         		HumanEntersBusEvent e = new HumanEntersBusEvent(h.getModel(), "HumanEntersBus");
         		e.schedule(h, loadingTime);
         	}
         	//picks up human from home busstop
     		
-    		
+    		totalLoadingTime += loadingTime;
         }
         //position.setWaitingPassengers(remainingPassengers);
 

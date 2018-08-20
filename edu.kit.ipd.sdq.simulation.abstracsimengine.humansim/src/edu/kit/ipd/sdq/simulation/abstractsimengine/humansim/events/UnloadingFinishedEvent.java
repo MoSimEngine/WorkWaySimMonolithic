@@ -23,7 +23,7 @@ public class UnloadingFinishedEvent extends AbstractSimEventDelegator<Bus> {
     public void eventRoutine(Bus bus) {
         
     	if(unloadingTime > 0.0){
-    	Utils.log(bus, "Unloading finished. Took " + this.unloadingTime + " seconds.");
+//    	Utils.log(bus, "Unloading finished. Took " + this.unloadingTime + " seconds.");
     	}
         // schedule load passengers event
         LoadPassengersEvent e = new LoadPassengersEvent(this.getModel(), "Load Passengers");

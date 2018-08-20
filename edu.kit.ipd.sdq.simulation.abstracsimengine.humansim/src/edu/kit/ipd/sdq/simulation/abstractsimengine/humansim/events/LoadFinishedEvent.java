@@ -20,7 +20,7 @@ public class LoadFinishedEvent extends AbstractSimEventDelegator<Bus> {
     @Override
     public void eventRoutine(Bus bus) {
     	if(loadingTime > 0.0){
-        Utils.log(bus, "Loading finished. Took " + loadingTime + " seconds.");
+//        Utils.log(bus, "Loading finished. Took " + loadingTime + " seconds.");
     	}
         if (remainingPassengers > 0) {
             Utils.log(bus, "Bus is full. Remaining passengers at bus station: "

@@ -16,7 +16,7 @@ public class HumanArriveAtBusStopAtWorkEvent extends AbstractSimEventDelegator<H
 	public void eventRoutine(Human human) {
 		// TODO Auto-generated method stub
 		human.arriveAtBusStopWork();
-		Utils.log(human, human.getName() + "is at bus stop and halfway home!");
+//		Utils.log(human, human.getName() + "is at bus stop and halfway home!");
 		//human.getPosition().setHuman(human);
 		
 		RegisterAtBusStopWorkEvent e = new RegisterAtBusStopWorkEvent(getModel(), "Register at bus stop work");

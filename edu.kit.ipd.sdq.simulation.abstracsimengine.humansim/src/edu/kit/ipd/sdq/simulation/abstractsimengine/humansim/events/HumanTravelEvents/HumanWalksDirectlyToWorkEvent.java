@@ -16,7 +16,7 @@ public class HumanWalksDirectlyToWorkEvent extends AbstractSimEventDelegator<Hum
 	public void eventRoutine(Human human) {
 		// TODO Auto-generated method stub
 		human.walkToWorkDirectly();
-		Utils.log(human, human.getName() + " walking to work. Wow, its a long way.");
+//		Utils.log(human, human.getName() + " walking to work. Wow, its a long way.");
 		
 		double walkingTime = human.WALK_DIRECTLY.toSeconds().value();
 		

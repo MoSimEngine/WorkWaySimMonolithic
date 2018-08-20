@@ -16,7 +16,7 @@ public class HumanWalksFromWorkToBusStopWorkEvent extends AbstractSimEventDelega
 	public void eventRoutine(Human human) {
 		human.walkToBusStopAtWork();
 		
-		Utils.log(human, human.getName() + " walks to work busstop:" + human.getWorkBusStop().getName() + ".  Oh happy day!");
+//		Utils.log(human, human.getName() + " walks to work busstop:" + human.getWorkBusStop().getName() + ".  Oh happy day!");
 
 		double walkingToBusStopWork = human.WORK_TO_STATION.toSeconds().value();
 		

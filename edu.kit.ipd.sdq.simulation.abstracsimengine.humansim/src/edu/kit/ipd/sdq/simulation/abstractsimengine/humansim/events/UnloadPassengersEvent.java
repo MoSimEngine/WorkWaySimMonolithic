@@ -11,7 +11,9 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanArriveByBusAtBusStopWorkEvent;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanArriveByBustBusStopHomeEvent;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanEntersBusSpinWait;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanExitsBusEvent;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanExitsBusSpinWait;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
 public class UnloadPassengersEvent extends AbstractSimEventDelegator<Bus> {
@@ -33,17 +35,21 @@ public class UnloadPassengersEvent extends AbstractSimEventDelegator<Bus> {
         
         double totalUnloadingTime = 0.0;
         double unloadingTime = Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value();
-        for(int i = 0; i < bus.getNumTransportedHumans(); i++){
+        int transportedHumans = bus.getNumTransportedHumans();
+        for(int i = 0; i < transportedHumans; i++){
         	Human h = bus.unloadHuman();
+        	System.out.println(h.getDestination().getName() + ":"  + bus.getPosition().getName());
         	if(h.getDestination().equals(bus.getPosition())){
-        		Utils.log(bus, "Unloading " + h.getName() + " at position " + position.getName());
+        		
+//        		Utils.log(bus, "Unloading " + h.getName() + " at position " + position.getName());
         		totalUnloadingTime += unloadingTime;
         		
         			if(HumanSimValues.USE_SPIN_WAIT){
-            			h.setCollected(false);
+                		HumanExitsBusSpinWait e = new HumanExitsBusSpinWait(h.getModel(), "HumanEntersBusSpinWait");
+                		e.schedule(h, unloadingTime);
             		} else {
             			HumanExitsBusEvent e = new HumanExitsBusEvent(getModel(), "HumanExitsBus");
-            			e.schedule(h, Bus.UNLOADING_TIME_PER_PASSENGER.toHours().value());
+            			e.schedule(h, Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value());
             		} 
         	} else {
         			bus.transportHuman(h);

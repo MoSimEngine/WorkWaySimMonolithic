@@ -14,7 +14,7 @@ public class HumanLivingHisLifeEvent extends AbstractSimEventDelegator<Human>{
 
 	@Override
 	public void eventRoutine(Human human) {
-		Utils.log(human, human.getName() + " lives his life. Black Jack and Hookers baby.");
+//		Utils.log(human, human.getName() + " lives his life. Black Jack and Hookers baby.");
 		human.calculateFreeTime();
 		double livingHisLife = human.FREETIME.toSeconds().value();
 		

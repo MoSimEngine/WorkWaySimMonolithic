@@ -15,7 +15,7 @@ public class HumanStopsLivingHisLifeEvent extends AbstractSimEventDelegator<Huma
 	@Override
 	public void eventRoutine(Human human) {
 		// TODO Auto-generated method stub
-		Utils.log(human, "Oh boy, time flies by... " + human.getName() + " stops living his life.");
+//		Utils.log(human, "Oh boy, time flies by... " + human.getName() + " stops living his life.");
 		
 		if(human.willWalk()){
 			HumanWalksDirectlyToWorkEvent e = new HumanWalksDirectlyToWorkEvent(this.getModel(), "Human walks to work directly");

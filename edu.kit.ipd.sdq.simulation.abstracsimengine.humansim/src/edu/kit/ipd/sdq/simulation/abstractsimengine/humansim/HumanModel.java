@@ -85,8 +85,8 @@ public class HumanModel extends AbstractSimulationModel{
             			workBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
             		}
             		} else {
-            			homeBS = i % 3;
-            			workBS = (i % 3) + 1;
+            			homeBS = i % 2;
+            			workBS = (i % 2) + 1;
             		}
         		Human hu = new Human(stops[homeBS], stops[workBS], this, "Bob" + i);
         		humans.add(hu);
@@ -95,7 +95,7 @@ public class HumanModel extends AbstractSimulationModel{
             
         } else { // event-oriented
             // schedule intitial event for the bus
-            new LoadPassengersEvent(this, "Load Passengers").schedule(bus, 0);
+            new LoadPassengersEvent(this, "Load Passengers").schedule(bus, 2.0);
             
             
          // schedule a process for each human
@@ -110,16 +110,16 @@ public class HumanModel extends AbstractSimulationModel{
             			workBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
             		}
             		} else {
-            			homeBS = i % 3;
-            			workBS = (i % 3) + 1;
+            			homeBS = i % 2;
+            			workBS = (i % 2) + 1;
             		}
         		Human hu = new Human(stops[homeBS], stops[workBS], this, "Bob" + i);
         		humans.add(hu);
         		
         		if(hu.willWalk()){
-        			new HumanWalksDirectlyToWorkEvent(this, hu.getName() + "walks directly").schedule(hu,0);
+        			new HumanWalksDirectlyToWorkEvent(this, hu.getName() + "walks directly").schedule(hu,1.0);
         		} else {
-        			new WalkToBusStopAtHomeEvent(this, hu.getName() + "walks to bus station").schedule(hu ,0);
+        			new WalkToBusStopAtHomeEvent(this, hu.getName() + "walks to bus station").schedule(hu ,1.0);
         		}
         		
         		
@@ -145,7 +145,7 @@ public class HumanModel extends AbstractSimulationModel{
 	 		
 	 		file_header += human.getName() + CSVHandler.CSV_DELIMITER;
 	 		behaviourMarker += human.getBehaviour().toString() + CSVHandler.CSV_DELIMITER;
-	 		System.out.println("Human " + human.getName() + " is in State " + human.getState() + " and is "+ human.getBehaviour().toString());
+//	 		System.out.println("Human " + human.getName() + " is in State " + human.getState() + " and is "+ human.getBehaviour().toString());
 	 		if(getMaxNumValues < human.getAwayFromHomeTimes().size()){
 	 			getMaxNumValues = human.getAwayFromHomeTimes().size();
 	 		}
@@ -164,10 +164,10 @@ public class HumanModel extends AbstractSimulationModel{
 			 	
 			 	
 			 	if(away.size() >= i){
-			 		csvAway += away.get(i).toSeconds();
-			 		csvDrivingTimes += driven.get(i).toSeconds();
-			 		csvWaitingAtStation += waited.get(i).toSeconds();
-			 		csvFreeTimes += free.get(i).toSeconds();
+			 		csvAway += away.get(i).toSeconds().value();
+			 		csvDrivingTimes += driven.get(i).toSeconds().value();
+			 		csvWaitingAtStation += waited.get(i).toSeconds().value();
+			 		csvFreeTimes += free.get(i).toSeconds().value();
 			 	} else {
 			 		csvAway += "-1";
 			 		csvDrivingTimes += "-1";

@@ -20,7 +20,7 @@ public class HumanArrivesAtWorkEvent extends AbstractSimEventDelegator<Human>{
 			human.arriveAtWorkBus();
 		}
 	
-		Utils.log(human, human.getName() + " starts to work.");
+//		Utils.log(human, human.getName() + " starts to work.");
 		HumanWorksEvent e = new HumanWorksEvent(this.getModel(), "Human Works");
 		e.schedule(human, 0);
 	}
