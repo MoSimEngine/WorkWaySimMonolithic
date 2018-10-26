@@ -37,7 +37,7 @@ public class LoadPassengersEvent extends AbstractSimEventDelegator<Bus> {
         	Human h = position.getPassenger();
         	bus.transportHuman(h);
         	double loadingTime = Bus.LOADING_TIME_PER_PASSENGER.toSeconds().value();
-        	Utils.log(bus, "Loading " + h.getName() + " at positio + " + position.getName());
+        	Utils.log(bus, "Loading " + h.getName() + " at position + " + position.getName());
 //           	HumanPickupEvent e = new HumanPickupEvent(this.getModel(), "Human Pickup", bus);
 //           	e.schedule(h, Bus.LOADING_TIME_PER_PASSENGER.toSeconds().value());
         	
@@ -48,8 +48,8 @@ public class LoadPassengersEvent extends AbstractSimEventDelegator<Bus> {
         		HumanEntersBusEvent e = new HumanEntersBusEvent(h.getModel(), "HumanEntersBus");
         		e.schedule(h, loadingTime);
         	}
+        	
         	//picks up human from home busstop
-    		
     		totalLoadingTime += loadingTime;
         }
         //position.setWaitingPassengers(remainingPassengers);

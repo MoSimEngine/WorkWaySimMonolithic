@@ -1,5 +1,7 @@
 package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim;
 
+
+
 public class Duration {
 
     public enum TimeUnit {

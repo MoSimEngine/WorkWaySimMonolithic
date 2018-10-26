@@ -364,7 +364,7 @@ public class Human extends AbstractSimEntityDelegator {
 	
 	public void calculateDrivingTime(){
 		timeDriven = Duration.seconds(timeDriven.toSeconds().value() + Duration.seconds(getModel().getSimulationControl().getCurrentSimulationTime() - timePointCollected).value());
-		System.out.println("New Time Driven" + timeDriven.value());
+		//System.out.println("New Time Driven" + timeDriven.value());
 		timePointCollected = 0.0;
 		//System.out.println("Human" + getName() + "New Time Driven" + timeDrivenEvent.toSeconds().value() + " at time " + getModel().getSimulationControl().getCurrentSimulationTime());
 		//Utils.log(this, "Caluclated New Drivingtime: " + timeDrivenEvent.toSeconds().value() );

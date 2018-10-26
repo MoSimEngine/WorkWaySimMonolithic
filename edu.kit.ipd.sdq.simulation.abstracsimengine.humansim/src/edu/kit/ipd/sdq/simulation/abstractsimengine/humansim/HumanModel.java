@@ -72,7 +72,7 @@ public class HumanModel extends AbstractSimulationModel{
    
         if (HumanSimValues.PROCESS_ORIENTED) {
             // schedule a process for each bus
-            new BusProcess(bus).scheduleAt(0);
+            new BusProcess(bus).scheduleAt(2.0);
         	
         	// schedule a process for each human
         	for(int i = 0; i < HumanSimValues.NUM_HUMANS; i++){
@@ -90,7 +90,7 @@ public class HumanModel extends AbstractSimulationModel{
             		}
         		Human hu = new Human(stops[homeBS], stops[workBS], this, "Bob" + i);
         		humans.add(hu);
-        		new HumanProcess(hu, bus).scheduleAt(0);
+        		new HumanProcess(hu, bus).scheduleAt(2.0);
         	}
             
         } else { // event-oriented
@@ -117,9 +117,9 @@ public class HumanModel extends AbstractSimulationModel{
         		humans.add(hu);
         		
         		if(hu.willWalk()){
-        			new HumanWalksDirectlyToWorkEvent(this, hu.getName() + "walks directly").schedule(hu,1.0);
+        			new HumanWalksDirectlyToWorkEvent(this, hu.getName() + "walks directly").schedule(hu,2.0);
         		} else {
-        			new WalkToBusStopAtHomeEvent(this, hu.getName() + "walks to bus station").schedule(hu ,1.0);
+        			new WalkToBusStopAtHomeEvent(this, hu.getName() + "walks to bus station").schedule(hu ,2.0);
         		}
         		
         		
