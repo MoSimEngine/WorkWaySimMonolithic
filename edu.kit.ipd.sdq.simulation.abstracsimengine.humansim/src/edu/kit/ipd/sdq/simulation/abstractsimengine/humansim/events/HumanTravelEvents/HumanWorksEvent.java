@@ -9,7 +9,7 @@ public class HumanWorksEvent extends AbstractSimEventDelegator<Human>{
 
 	protected HumanWorksEvent(ISimulationModel model, String name) {
 		super(model, name);
-		// TODO Auto-generated constructor stub
+
 	}
 
 	@Override
@@ -18,9 +18,6 @@ public class HumanWorksEvent extends AbstractSimEventDelegator<Human>{
 		double working = human.WORKTIME.toSeconds().value();
 		HumanEndsWorkingEvent e = new HumanEndsWorkingEvent(this.getModel(), "Human stops working");
 		e.schedule(human, working);
-		
-		
-		
 	}
 
 }

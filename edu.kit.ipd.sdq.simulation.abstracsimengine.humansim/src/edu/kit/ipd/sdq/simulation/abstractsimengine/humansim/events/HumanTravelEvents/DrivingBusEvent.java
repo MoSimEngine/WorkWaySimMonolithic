@@ -6,29 +6,25 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.HumanSimValues;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
-public class DrivingBusHomeEvent extends AbstractSimEventDelegator<Human>{
+public class DrivingBusEvent extends AbstractSimEventDelegator<Human>{
 
-	protected DrivingBusHomeEvent(ISimulationModel model, String name) {
+	protected DrivingBusEvent(ISimulationModel model, String name) {
 		super(model, name);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void eventRoutine(Human human) {
-		// TODO Auto-generated method stub
 
-	
-		
 		if(human.isCollected()){
 			
-			DrivingBusHomeEvent e = new DrivingBusHomeEvent(getModel(), "reschedulingDrivingBusHome");
+			DrivingBusEvent e = new DrivingBusEvent(getModel(), "reschedulingDrivingBusHome");
 			e.schedule(human, HumanSimValues.BUSY_WAITING_TIME_STEP.toSeconds().value());
 			return;
 		}
-		Utils.log(human, human.getName() + " left bus at " + human.getHomeBusStop().getName() );
+		Utils.log(human, human.getName() + " left bus at " + human.getPosition().getName() );
 		human.calculateDrivingTime();
 		
-		ArriveByBusAtBusStopHomeWithWaitingEvent e = new ArriveByBusAtBusStopHomeWithWaitingEvent(getModel(), "ArriveAtHomeByBusWaiting");
+		ArriveAtNextEvent e = new ArriveAtNextEvent(getModel(), "ArriveAtHomeByBusWaiting");
 		e.schedule(human, 0);
 	}
 

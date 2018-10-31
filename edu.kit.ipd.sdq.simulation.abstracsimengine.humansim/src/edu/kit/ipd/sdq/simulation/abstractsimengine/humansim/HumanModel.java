@@ -1,11 +1,7 @@
 package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
@@ -17,12 +13,11 @@ import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Bus;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
-import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human.HumanBehaviour;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.LoadPassengersEvent;
-import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanWalksDirectlyToWorkEvent;
-import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.WalkToBusStopAtHomeEvent;
-import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.processes.BusProcess;
-import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.processes.HumanProcess;
+
+
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.TravelToNextEvent;
+
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.CSVHandler;
 
 
@@ -70,30 +65,7 @@ public class HumanModel extends AbstractSimulationModel{
         // define buses
         Bus bus = new Bus(40, stop1, lineOne, this, "Bus 1");
    
-        if (HumanSimValues.PROCESS_ORIENTED) {
-            // schedule a process for each bus
-            new BusProcess(bus).scheduleAt(2.0);
-        	
-        	// schedule a process for each human
-        	for(int i = 0; i < HumanSimValues.NUM_HUMANS; i++){
-        		//new HumanProcess(new Human(stop1, stop3, this, "Bob" + i), bus).scheduleAt(0);
-        		int homeBS = 0;
-        		int workBS = 0;
-        		if(HumanSimValues.RANDOMIZED_HUMAN_STATIONS){
-            		while(homeBS == workBS){
-            			homeBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
-            			workBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
-            		}
-            		} else {
-            			homeBS = i % 2;
-            			workBS = (i % 2) + 1;
-            		}
-        		Human hu = new Human(stops[homeBS], stops[workBS], this, "Bob" + i);
-        		humans.add(hu);
-        		new HumanProcess(hu, bus).scheduleAt(2.0);
-        	}
-            
-        } else { // event-oriented
+        
             // schedule intitial event for the bus
             new LoadPassengersEvent(this, "Load Passengers").schedule(bus, 2.0);
             
@@ -116,18 +88,10 @@ public class HumanModel extends AbstractSimulationModel{
         		Human hu = new Human(stops[homeBS], stops[workBS], this, "Bob" + i);
         		humans.add(hu);
         		
-        		if(hu.willWalk()){
-        			new HumanWalksDirectlyToWorkEvent(this, hu.getName() + "walks directly").schedule(hu,2.0);
-        		} else {
-        			new WalkToBusStopAtHomeEvent(this, hu.getName() + "walks to bus station").schedule(hu ,2.0);
-        		}
         		
-        		
+        		new TravelToNextEvent(this, hu.getName() + "walks to bus station").schedule(hu ,2.0);
         	}
-            
-            
-            //new PassengerArrivalEvent(Duration.seconds(2.0), this, "BS").schedule(stop1, 0);
-        }
+        
 	}
 	public void finalise() {
 		

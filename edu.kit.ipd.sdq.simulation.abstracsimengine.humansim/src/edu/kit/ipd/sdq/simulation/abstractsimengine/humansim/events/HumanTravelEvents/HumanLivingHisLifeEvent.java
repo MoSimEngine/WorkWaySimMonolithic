@@ -9,7 +9,6 @@ public class HumanLivingHisLifeEvent extends AbstractSimEventDelegator<Human>{
 
 	protected HumanLivingHisLifeEvent(ISimulationModel model, String name) {
 		super(model, name);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

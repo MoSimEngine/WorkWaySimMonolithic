@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 
-public class BusStop extends AbstractSimEntityDelegator {
+public class BusStop extends Position {
 
     private volatile int waitingPassengers;
     
@@ -18,7 +18,7 @@ public class BusStop extends AbstractSimEntityDelegator {
 
     
     public BusStop(ISimulationModel model, String name) {
-        super(model, name);
+        super(model, name, PositionType.BUSSTOP);
         
        passengers = new ConcurrentLinkedQueue<Human>();
     }

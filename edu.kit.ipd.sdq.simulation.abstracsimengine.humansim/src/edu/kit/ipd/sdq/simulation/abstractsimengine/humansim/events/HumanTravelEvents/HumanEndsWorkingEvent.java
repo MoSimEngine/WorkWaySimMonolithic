@@ -9,7 +9,7 @@ public class HumanEndsWorkingEvent extends AbstractSimEventDelegator<Human>{
 
 	protected HumanEndsWorkingEvent(ISimulationModel model, String name) {
 		super(model, name);
-		// TODO Auto-generated constructor stub
+
 	}
 
 	@Override
@@ -17,14 +17,8 @@ public class HumanEndsWorkingEvent extends AbstractSimEventDelegator<Human>{
 		
 //		Utils.log(human, "Finally its over..." + human.getName() + " stops working.");
 		
-		if(human.willWalk()){
-			HumanWalksDirectlyHomeEvent e = new HumanWalksDirectlyHomeEvent(this.getModel(), "human walks home directly");
-			e.schedule(human, 0);
-		} else {
-			HumanWalksFromWorkToBusStopWorkEvent e = new HumanWalksFromWorkToBusStopWorkEvent(this.getModel(), "human walks to bus stop work from work");
-			e.schedule(human, 0);
-		}
-		
+		TravelToNextEvent e = new TravelToNextEvent(getModel(), "Travel From Work");
+		e.schedule(human, 0);
 		
 	}
 
