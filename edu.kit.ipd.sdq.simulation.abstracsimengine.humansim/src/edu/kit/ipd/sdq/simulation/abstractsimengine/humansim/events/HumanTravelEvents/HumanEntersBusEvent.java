@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravel
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
 public class HumanEntersBusEvent extends AbstractSimEventDelegator<Human>{
 
@@ -17,7 +18,7 @@ public class HumanEntersBusEvent extends AbstractSimEventDelegator<Human>{
 		human.setCollected(true);
 		human.calculateWaitedTime();
 		human.humanIsCollected();
-		
+		Utils.log(human, human.getName() + " enters bus at " + human.getPosition().getName() );
 		human.travellingToNext();
 		
 		

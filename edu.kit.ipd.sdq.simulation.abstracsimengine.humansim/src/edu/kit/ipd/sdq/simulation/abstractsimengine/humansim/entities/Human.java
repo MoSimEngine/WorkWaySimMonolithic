@@ -31,10 +31,6 @@ public class Human extends AbstractSimEntityDelegator {
 	private HumanState state;
 	private HumanBehaviour behaviour;
 
-	private BusStop homeBusStop;
-
-	private BusStop workBusStop;
-
 	private Position position;
 
 	private Position destination;
@@ -50,7 +46,9 @@ public class Human extends AbstractSimEntityDelegator {
 	public  final Duration WORKTIME = Duration.hours(8);
 	private ArrayList<Position> workway = new ArrayList<Position>();
 	private int positionIndex = 0;
-	int direction = 1;
+	//Regulates the index direction for traversal of the workway list 
+	// Values: 1 -> forward; -1 -> backward;
+	private int direction = 1;
 	
 	
 	public   Duration FREETIME = Duration.hours(0); 
@@ -67,11 +65,7 @@ public class Human extends AbstractSimEntityDelegator {
 
 	public Human(BusStop home, BusStop work, ISimulationModel model, String name) {
 		super(model, name);
-		homeBusStop = home;
-		workBusStop = work;
-		
-		
-		
+
 //		Utils.log(this, "HomeBS: " + home.getName() + " WorkBS: " + work.getName());
 		// start at home
 		
@@ -96,11 +90,8 @@ public class Human extends AbstractSimEntityDelegator {
 //			System.out.print(workway.get(i).getName() + "->");
 //		}
 		
-		
 		position = workway.get(positionIndex);
 		destination = workway.get(positionIndex+1);
-		
-		
 		
 		if(HumanSimValues.RANDOMIZED_HUMAN_VALUES){
 			HOME_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
@@ -204,8 +195,6 @@ public class Human extends AbstractSimEntityDelegator {
 		return drivingTimes;
 	}
 	
-
-	
 	public ArrayList<Duration> getAwayFromHomeTimes(){
 		return awayFromHomeTimes;
 	}
@@ -261,7 +250,7 @@ public class Human extends AbstractSimEntityDelegator {
 		drivingTimes.add(timeDriven);
 		double total= 24 - onTheWay.toHours().value();
 		FREETIME = Duration.hours(total);
-		System.out.println("Enjoys: " + FREETIME.toHours().value() + " of Freetime");
+		Utils.log(this, "Enjoys: " + FREETIME.toHours().value() + " of Freetime");
 		freeTimes.add(FREETIME.toHours());
 		this.timeDriven = Duration.seconds(0);
 		timePointAtBusStop = 0;

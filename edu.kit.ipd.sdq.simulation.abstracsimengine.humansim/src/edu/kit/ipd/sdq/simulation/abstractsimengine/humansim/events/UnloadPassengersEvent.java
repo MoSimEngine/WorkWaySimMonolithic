@@ -9,7 +9,6 @@ import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.HumanSimValues;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Bus;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
-import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanEntersBusSpinWait;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanExitsBusEvent;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.HumanExitsBusSpinWait;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
@@ -39,16 +38,14 @@ public class UnloadPassengersEvent extends AbstractSimEventDelegator<Bus> {
         	//System.out.println(h.getDestination().getName() + ":"  + bus.getPosition().getName());
         	if(h.getDestination().equals(bus.getPosition())){
         		
-//        		Utils.log(bus, "Unloading " + h.getName() + " at position " + position.getName());
+        		Utils.log(bus, "Unloading " + h.getName() + " at position " + position.getName());
         		totalUnloadingTime += unloadingTime;
         		
-        			if(HumanSimValues.USE_SPIN_WAIT){
-                		HumanExitsBusSpinWait e = new HumanExitsBusSpinWait(h.getModel(), "HumanEntersBusSpinWait");
-                		e.schedule(h, unloadingTime);
-            		} else {
             			HumanExitsBusEvent e = new HumanExitsBusEvent(getModel(), "HumanExitsBus");
+            			
             			e.schedule(h, Bus.UNLOADING_TIME_PER_PASSENGER.toSeconds().value());
-            		} 
+            			
+            		
         	} else {
         			bus.transportHuman(h);
         		}

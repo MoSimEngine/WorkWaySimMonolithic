@@ -1,5 +1,8 @@
 package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Duration;
@@ -17,11 +20,11 @@ public class TravelEvent extends AbstractSimEventDelegator<Bus> {
     public void eventRoutine(Bus bus) {
         RouteSegment segment = bus.travel();
 
-        Utils.log(bus, "Travelling to station " + segment.getTo());
+//        Utils.log(bus, "Travelling to station " + segment.getTo());
 
         double drivingTime = Duration.hours(segment.getDistance() / (double) segment.getAverageSpeed()).toSeconds()
                 .value();
-
+    
 //        Utils.log(bus, "next time" + getModel().getSimulationControl().getCurrentSimulationTime() + drivingTime);
         // wait for the bus to arrive at the next station^
         ArriveEvent e = new ArriveEvent(drivingTime, this.getModel(), "Arrive Event");

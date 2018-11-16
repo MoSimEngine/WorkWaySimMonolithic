@@ -25,16 +25,13 @@ public class RegisterAtBusStopEvent extends AbstractSimEventDelegator<Human>{
 		
 		Utils.log(human, "Registers at bus Stop:" + human.getPosition().getName() + " with Destination" + human.getDestination().getName());
 		
-		if(HumanSimValues.USE_SPIN_WAIT){
-		WaitForBusEvent e = new WaitForBusEvent(this.getModel(), "Waiting for bus at home event");
-		e.schedule(human, 1.0);
-		return;
-		} else {
+	
+		
 //			PickUpTimeoutEvent e = new PickUpTimeoutEvent(getModel(), "PickUpTimeoutAtBSH");
 ////			e.schedule(human, Duration.minutes(20).toSeconds().value());
 //			m.getComponent().synchronisedAdvancedTime(Duration.minutes(20).toSeconds().value(), e, human);
-		}
 		
+	
 		
 		
 	

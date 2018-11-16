@@ -4,6 +4,7 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.HumanSimValues;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
 
 public class HumanExitsBusEvent extends AbstractSimEventDelegator<Human>{
 
@@ -16,14 +17,10 @@ public class HumanExitsBusEvent extends AbstractSimEventDelegator<Human>{
 	public void eventRoutine(Human human) {
 
 		
-		
-//		if(human.getDestination().equals(human.getHomeBusStop())){
-//			HumanArriveByBustBusStopHomeEvent e = new HumanArriveByBustBusStopHomeEvent(getModel(), "ArriveAtBSHomeByBus");
-//			e.schedule(human, 0);
-//		} else if (human.getDestination().equals(human.getWorkBusStop())){
-//			HumanArriveByBusAtBusStopWorkEvent e = new HumanArriveByBusAtBusStopWorkEvent(getModel(), "ArriveAtBSWorkbyBus");
-//			e.schedule(human, 0);
-//		}
+		Utils.log(human, human.getName() + " left bus at " + human.getDestination().getName() );
+		human.calculateDrivingTime();
+		ArriveAtNextEvent e = new ArriveAtNextEvent(getModel(), "Arrive after driving");
+		e.schedule(human, 0);
 		
 	}
 
