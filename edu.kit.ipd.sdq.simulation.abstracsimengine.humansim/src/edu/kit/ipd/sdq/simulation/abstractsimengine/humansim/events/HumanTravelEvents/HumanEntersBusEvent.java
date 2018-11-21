@@ -18,7 +18,7 @@ public class HumanEntersBusEvent extends AbstractSimEventDelegator<Human>{
 		human.setCollected(true);
 		human.calculateWaitedTime();
 		human.humanIsCollected();
-		Utils.log(human, human.getName() + " enters bus at " + human.getPosition().getName() );
+//		Utils.log(human, human.getName() + " enters bus at " + human.getPosition().getName() );
 		human.travellingToNext();
 		
 		

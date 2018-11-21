@@ -11,6 +11,8 @@ import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Bus;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.BusStop;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Human;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Position;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities.Position.PositionType;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.LoadPassengersEvent;
 
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.events.HumanTravelEvents.TravelToNextEvent;
@@ -39,32 +41,33 @@ public class HumanModel extends AbstractSimulationModel {
 		startTime = System.nanoTime();
 
 		// define bus stops
-		for (int i = 1; i <= HumanSimValues.NUM_BUSSTOPS ; i++) {
+		for (int i = 0; i < HumanSimValues.NUM_BUSSTOPS ; i++) {
 			stops.add(new BusStop(this, "Stop" + i));
 		}
 
-		// define route
-        Route lineOne = new Route();
-        lineOne.addSegment(stops.get(0), stops.get(1), 20, 50);
-        lineOne.addSegment(stops.get(1), stops.get(2), 40, 50);
-        lineOne.addSegment(stops.get(2), stops.get(0), 30, 50);
-        
-        Route lineTwo = new Route();
-        lineTwo.addSegment(stops.get(3), stops.get(4), 20, 50);
-        lineTwo.addSegment(stops.get(4), stops.get(5), 30, 50);
-        lineTwo.addSegment(stops.get(5), stops.get(3), 40, 50);
-
 	
+        // define route
+	     Route lineOne = new Route();
+	        lineOne.addSegment(stops.get(0), stops.get(1), 30, 50);
+	        lineOne.addSegment(stops.get(1), stops.get(0), 30, 50);
+	        
+	        Route lineTwo = new Route();
+	        lineTwo.addSegment(stops.get(2), stops.get(3), 40, 50);
+	        lineTwo.addSegment(stops.get(3), stops.get(2), 40, 50);
+	        
+	        Route lineThree = new Route();
+	        lineThree.addSegment(stops.get(4), stops.get(5), 50, 50);
+	        lineThree.addSegment(stops.get(5), stops.get(4), 50, 50);
+	        
+        
         //define busses
-        buses.add(new Bus(40, stops.get(0), lineOne, this, "Bus1"));
-        buses.add(new Bus(40, stops.get(1), lineOne, this, "Bus2"));
-        buses.add(new Bus(40, stops.get(2), lineOne, this, "Bus3"));
-        buses.add(new Bus(40, stops.get(0), lineOne, this, "Bus4"));
-     
-        buses.add(new Bus(20, stops.get(3), lineTwo, this, "Bus5"));
-        buses.add(new Bus(20, stops.get(4), lineTwo, this, "Bus6"));
-        buses.add(new Bus(20, stops.get(5), lineTwo, this, "Bus7"));
-        buses.add(new Bus(20, stops.get(4), lineTwo, this, "Bus8"));
+        buses.add(new Bus(1000, stops.get(0), lineOne, this, "Bus0"));
+        buses.add(new Bus(1000, stops.get(1), lineOne, this, "Bus1"));
+        buses.add(new Bus(1000, stops.get(2), lineTwo, this, "Bus2"));
+        buses.add(new Bus(1000, stops.get(3), lineTwo, this, "Bus3"));
+        buses.add(new Bus(1000, stops.get(4), lineThree, this, "Bus4"));
+        buses.add(new Bus(1000, stops.get(5), lineThree, this, "Bus5"));
+        
         
         
 //		for (Bus bus : buses) {
@@ -80,25 +83,39 @@ public class HumanModel extends AbstractSimulationModel {
 			
 			new LoadPassengersEvent(this, "Load Passengers").schedule(buses.get(i), timestep);
 		}
-
+        ArrayList<ArrayList<Position>> routes = getRoutes();
 		// schedule a process for each human
 		for (int i = 0; i < HumanSimValues.NUM_HUMANS; i++) {
-			
+			ArrayList<Position> usedRoute = new ArrayList<Position>();
 			int homeBS = 0;
 			int workBS = 0;
-
+			Position home = new Position(this, "Home", PositionType.HOME);
+			Position work = new Position(this, "Work", PositionType.WORK);
 			if (HumanSimValues.RANDOMIZED_HUMAN_STATIONS) {
-				while (homeBS == workBS) {
-					homeBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
-					workBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
+				homeBS = new Random().nextInt(HumanSimValues.NUM_BUSSTOPS);
+				if(homeBS % 2 == 0) {
+					workBS = homeBS + 1;
+				} else {
+					workBS = homeBS - 1;
 				}
+				
+				usedRoute.add(home);
+				usedRoute.add(stops.get(homeBS));
+				usedRoute.add(stops.get(workBS));
+				usedRoute.add(work);
 			} else {
-				int route = i % 2;
-
-				homeBS = route * 3;
-				workBS = (route * 3) + 1;
+				
+				usedRoute = routes.get(i%3);
+			
+				
+//				int route = i % 2;
+//				
+//				
+//				homeBS = route * 3;
+//				workBS = (route * 3) + 1;
 			}
-			Human hu = new Human(stops.get(homeBS), stops.get(workBS), this, "Hugo" + i);
+
+			Human hu = new Human(usedRoute, this, "Hugo" + i);
 			humans.add(hu);
 
 			new TravelToNextEvent(this, hu.getName() + "walks to bus station").schedule(hu, 2.0);
@@ -123,7 +140,7 @@ public class HumanModel extends AbstractSimulationModel {
 			file_header += human.getName() + CSVHandler.CSV_DELIMITER;
 			behaviourMarker += human.getBehaviour().toString() + CSVHandler.CSV_DELIMITER;
 			System.out.println("Human " + human.getName() + " is in State " + human.getState() + " and is "
-					+ human.getBehaviour().toString());
+					+ human.getBehaviour().toString() + "starting from: " + human.getWorkway().get(0).getName());
 			if (getMaxNumValues < human.getAwayFromHomeTimes().size()) {
 				getMaxNumValues = human.getAwayFromHomeTimes().size();
 			}
@@ -230,5 +247,38 @@ public class HumanModel extends AbstractSimulationModel {
 		final HumanModel model = new HumanModel(config, factory);
 
 		return model;
+	}
+	
+	public ArrayList<ArrayList<Position>> getRoutes(){
+		ArrayList<ArrayList<Position>> routes = new ArrayList<ArrayList<Position>>();
+		Position home = new Position(this, "Home", PositionType.HOME);
+		Position work = new Position(this, "Work", PositionType.WORK);
+		
+		
+		ArrayList<Position> routeOne = new ArrayList<Position>();
+		routeOne.add(home);
+		routeOne.add(stops.get(0));
+		routeOne.add(stops.get(1));
+		routeOne.add(work);
+		
+		ArrayList<Position> routeTwo = new ArrayList<Position>();
+		routeTwo.add(home);
+		routeTwo.add(stops.get(2));
+		routeTwo.add(stops.get(3));
+		routeTwo.add(work);
+
+		ArrayList<Position> routeThree = new ArrayList<Position>();
+		routeThree.add(home);
+		routeThree.add(stops.get(4));
+		routeThree.add(stops.get(5));
+		routeThree.add(work);
+		
+	
+		routes.add(routeOne);
+		routes.add(routeTwo);
+		routes.add(routeThree);
+		
+		return routes;
+		
 	}
 }

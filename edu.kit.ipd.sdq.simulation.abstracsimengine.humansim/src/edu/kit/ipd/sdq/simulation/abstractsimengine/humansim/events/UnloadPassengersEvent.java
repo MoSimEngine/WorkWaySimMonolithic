@@ -38,7 +38,7 @@ public class UnloadPassengersEvent extends AbstractSimEventDelegator<Bus> {
         	//System.out.println(h.getDestination().getName() + ":"  + bus.getPosition().getName());
         	if(h.getDestination().equals(bus.getPosition())){
         		
-        		Utils.log(bus, "Unloading " + h.getName() + " at position " + position.getName());
+//        		Utils.log(bus, "Unloading " + h.getName() + " at position " + position.getName());
         		totalUnloadingTime += unloadingTime;
         		
             			HumanExitsBusEvent e = new HumanExitsBusEvent(getModel(), "HumanExitsBus");

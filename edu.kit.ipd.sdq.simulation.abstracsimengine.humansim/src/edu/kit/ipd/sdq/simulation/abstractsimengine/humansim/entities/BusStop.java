@@ -8,19 +8,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.util.Utils;
+
 
 public class BusStop extends Position {
 
     private volatile int waitingPassengers;
     
-    private ConcurrentLinkedQueue<Human> passengers;
+    private LinkedList<Human> passengers;
     
 
     
     public BusStop(ISimulationModel model, String name) {
         super(model, name, PositionType.BUSSTOP);
-        
-       passengers = new ConcurrentLinkedQueue<Human>();
+        passengers = new LinkedList<Human>();
     }
 
     public int getWaitingPassengers() {
@@ -30,6 +31,11 @@ public class BusStop extends Position {
     public void setWaitingPassengers(int waitingPassengers) {
         this.waitingPassengers = waitingPassengers;
     }
+    
+    public void placePassengerInFront(Human human) {
+    	passengers.addFirst(human);
+    }
+    
     
     public synchronized void setHuman(Human human){
     	passengers.add(human);

@@ -23,7 +23,7 @@ public class RegisterAtBusStopEvent extends AbstractSimEventDelegator<Human>{
 		registerEvent.schedule(human, 1.0);
 		human.arriveAtBusStopWalkingTimePointLog();
 		
-		Utils.log(human, "Registers at bus Stop:" + human.getPosition().getName() + " with Destination" + human.getDestination().getName());
+//		Utils.log(human, "Registers at bus Stop:" + human.getPosition().getName() + " with Destination" + human.getDestination().getName());
 		
 	
 		

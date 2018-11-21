@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Duration;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Route;
 import edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.Route.RouteSegment;
@@ -130,6 +131,10 @@ public class Bus extends AbstractSimEntityDelegator {
 	
 	public Human unloadHuman(){
 		return transportedHumans.poll();
+	}
+	
+	public boolean containsDestinationInRoute(BusStop destination) {
+		return route.containsBusStop(destination);
 	}
 
 }

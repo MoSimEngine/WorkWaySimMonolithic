@@ -1,6 +1,7 @@
 package edu.kit.ipd.sdq.simulation.abstractsimengine.humansim.entities;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Random;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
@@ -111,6 +112,40 @@ public class Human extends AbstractSimEntityDelegator {
 	
 	}
 
+	public Human(ArrayList<Position> route, ISimulationModel model, String name){
+		super(model, name);
+	
+		// start at home
+		state = HumanState.AT_HOME;
+		if(HumanSimValues.WALKING_ENABLED){
+			behaviour = HumanBehaviour.values()[new Random().nextInt(2)];
+			} else {
+				behaviour = HumanBehaviour.DRIVING_BY_BUS;
+			}
+		
+		this.workway = route;
+		
+		position = workway.get(positionIndex);
+		destination = workway.get(positionIndex+1);
+		
+		if(HumanSimValues.RANDOMIZED_HUMAN_VALUES){
+			HOME_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
+			WORK_TO_STATION = Duration.minutes(new Random().nextInt(60) + 1);
+			WALK_DIRECTLY = Duration.minutes(Duration.minutes(new Random().nextInt(200) + 1).value());
+		} else {
+			HOME_TO_STATION = Duration.minutes(30);
+			WORK_TO_STATION = Duration.minutes(30);
+			WALK_DIRECTLY = Duration.minutes(90);
+		}
+		
+		awayFromHomeTimes = new ArrayList<Duration>();
+		busWaitingTimes = new ArrayList<Duration>();
+		drivingTimes = new ArrayList<Duration>();
+		freeTimes = new ArrayList<Duration>();	
+		
+	}
+
+	
 	//BusDriving state changes
 	
 	public void walkToNext() {
@@ -199,6 +234,10 @@ public class Human extends AbstractSimEntityDelegator {
 		return awayFromHomeTimes;
 	}
 	
+	public ArrayList<Position> getWorkway(){
+		return workway;
+	}
+	
 
 	public void arriveAtBusStopWalkingTimePointLog(){
 		
@@ -250,7 +289,7 @@ public class Human extends AbstractSimEntityDelegator {
 		drivingTimes.add(timeDriven);
 		double total= 24 - onTheWay.toHours().value();
 		FREETIME = Duration.hours(total);
-		Utils.log(this, "Enjoys: " + FREETIME.toHours().value() + " of Freetime");
+//		Utils.log(this, "Enjoys: " + FREETIME.toHours().value() + " of Freetime");
 		freeTimes.add(FREETIME.toHours());
 		this.timeDriven = Duration.seconds(0);
 		timePointAtBusStop = 0;
